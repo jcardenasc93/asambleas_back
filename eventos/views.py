@@ -59,8 +59,8 @@ class ListEventosView(viewsets.ModelViewSet):
         evento = get_object_or_404(Evento, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
-            self.perform_destroy(asambleista)
-            return Response({'detail': 'Usuario eliminado'}, status=status.HTTP_204_NO_CONTENT)
+            self.perform_destroy(evento)
+            return Response({'detail': 'Evento eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
