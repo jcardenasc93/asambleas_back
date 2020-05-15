@@ -11,6 +11,7 @@ from .models import Asambleista
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def createUser(request):
+    # TODO: Agregar validacion de usuarios staff
     asambleista = Asambleista(username='asam_test', first_name='Don asambleista Test',
                               email='asambleista@asambleista.com', inmueble='INT10 AP 301', documento='1032555678')
     asambleista.set_password('asambleas2020')
