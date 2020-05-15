@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 
+from eventos.models import Evento
+
 # Create your models here.
 
 
@@ -17,6 +19,7 @@ class Asambleista(Usuario):
     documento = models.CharField(max_length=20, blank=True, null=True)
     celular = PhoneNumberField(null=True, blank=False)
     mora = models.BooleanField(default=False)
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'asambleista'
