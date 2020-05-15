@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'phonenumber_field',
+    'djoser',
+    'rest_framework.authtoken',
 
     'usuarios'
 ]
@@ -72,7 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'asambleas.wsgi.application'
 
-AUTH_USER_MODEL = "usuarios.Usuario" 
+AUTH_USER_MODEL = "usuarios.Usuario"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -130,3 +132,11 @@ STATIC_URL = '/static/'
 # Phonenumber field
 PHONENUMBER_DB_FORMAT = 'INTERNATIONAL'
 PHONENUMBER_DEFAULT_REGION = "CO"
+
+# REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}

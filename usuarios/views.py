@@ -4,6 +4,7 @@ from .models import Asambleista
 
 
 def createUser(request):
-    asambleista = Asambleista(username='asambleista', password='asambleista', first_name='Don asambleista',
-                              email='asambleista@asambleista.com', inmueble='INT9 AP 301', documento='1032555678')
+    asambleista = Asambleista(username='asambleista_test', first_name='Don asambleista Test',
+                              email='asambleista@asambleista.com', inmueble='INT10 AP 301', documento='1032555678')
+    asambleista.set_password('asambleas2020')
     asambleista.save()
