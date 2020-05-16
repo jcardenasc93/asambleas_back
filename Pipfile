@@ -13,6 +13,7 @@ django-phonenumber-field = {extras = ["phonenumbers"],version = "*"}
 djoser = "*"
 djangorestframework = "*"
 openpyxl = "*"
+django-heroku = "*"
 
 [requires]
 python_version = "3.8"
