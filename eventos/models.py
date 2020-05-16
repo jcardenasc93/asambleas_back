@@ -30,3 +30,7 @@ class PreguntaAbierta(Pregunta):
     def __str__(self):
         return self.evento.nombre + '-- ' + self.enunciado
 
+class PreguntaDecimal(Pregunta):
+    def __str__(self):
+        return self.evento.nombre + '-- ' + self.enunciado
+
