@@ -20,3 +20,13 @@ class Evento(models.Model):
         return os.path.basename(self.documento_excel.name)
     def __str__(self):
         return self.nombre
+
+class Pregunta(models.Model):
+    enunciado = models.CharField(max_length=500, null=False)
+    activa = models.BooleanField(default=True)
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
+
+class PreguntaAbierta(Pregunta):
+    def __str__(self):
+        return self.evento.nombre + '-- ' + self.enunciado
+
