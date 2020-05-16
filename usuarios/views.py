@@ -6,26 +6,65 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+import openpyxl
+import os
+import random
 
 from .models import Asambleista
 from .serializers import AsambleistaSerializer
 # Create your views here.
 
+def random_password():
+    chars ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+}{"
+    password=""
+    for i in range(10):
+        password += random.choice(chars)
+    return password
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def createUser(request):
-    # TODO: Agregar validacion de usuarios staff
-    asambleista = Asambleista(username='asam_test', first_name='Don asambleista Test',
-                              email='asambleista@asambleista.com', inmueble='INT10 AP 301', documento='1032555678')
-    asambleista.set_password('asambleas2020')
-    try:
-        asambleista.save()
-        return Response({'detail': 'Usuario {} creado correctamente'.format(asambleista.username)},
-                        status=status.HTTP_201_CREATED)
-    except:
-        return Response({'detail': 'No se pudo crear el usuario {}. Verifique que no este duplicado'.format(asambleista.username)},
-                        status=status.HTTP_409_CONFLICT)
+def createUser(request, pk=None):
+    # Lectura del archivo de Excel
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    excel_file = BASE_DIR + "/media/plantilla_carga_usuarios.xlsx"
+    wb = openpyxl.load_workbook(excel_file)
+    worksheet = wb["Sheet1"]
+
+    # Convertimos archivo en una lista
+    excel_data = list()
+    for row in worksheet.iter_rows():
+        row_data = list()
+        for cell in row:
+            row_data.append(str(cell.value))
+        excel_data.append(row_data)
+    excel_data.pop(0)
+
+    usuarios_no_creados = []
+    for data in excel_data:
+        asambleista = ''
+        username = data[2] + '_' + data[0].replace(' ', '_').lower()
+        if data[6] == 'si':
+            mora = True
+        else:
+            mora = False
+        asambleista = Asambleista(inmueble=data[0], first_name=data[1],
+                                    documento=data[2], email=data[3], celular=data[4], coeficiente=data[5], 
+                                    mora=mora, username=username, evento_id=pk)
+        asambleista.set_password(random_password())
+        try:
+            asambleista.save()
+            # TODO: Enviar correo
+
+        except:
+            usuarios_no_creados.append(data[0])
+            pass
+            
+    if len(usuarios_no_creados) > 0:
+        return Response({'usuarios_no_creados': usuarios_no_creados},
+                            status=status.HTTP_206_PARTIAL_CONTENT)
+    else:
+        return Response({'detail': 'Todos los usuarios se crearon correctamente'},
+                           status=status.HTTP_201_CREATED)
 
 
 class ListAsambleistasView(viewsets.ModelViewSet):
