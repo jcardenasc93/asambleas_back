@@ -1,0 +1,1 @@
+web: gunicorn asambleas.wsgi --log-file - --timeout 120
