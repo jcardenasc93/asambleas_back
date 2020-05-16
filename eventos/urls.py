@@ -43,4 +43,19 @@ urlpatterns = [
          views.ListPregDecimalView.as_view({'patch': 'partial_update'}), name='actualiza_preg_decimal'),
     path('api/v1/eventos/pregunta_decimal/eliminar/<int:pk>',
          views.ListPregDecimalView.as_view({'post': 'destroy'}), name='elimina_preg_decimal'),
+
+
+    #### PREGUNTA DECIMAL ####
+    path('api/v1/eventos/pregunta_multiple/',
+         views.ListPregMultipleView.as_view({'get': 'list'}), name='list_preg_multiple'),
+    path('api/v1/eventos/pregunta_multiple/<int:pk>',
+         views.ListPregMultipleView.as_view({'get': 'retrieve'}), name='list_preg_multiple'),
+    path('api/v1/eventos/pregunta_multiple/evento/<int:pk>',
+         views.ListPregMultipleView.as_view({'get': 'retrieveByEvent'}), name='list_preg_multiple_evento'),
+    path('api/v1/eventos/pregunta_multiple/nuevo',
+         views.ListPregMultipleView.as_view({'post': 'create'}), name='crea_preg_multiple'),
+    path('api/v1/eventos/pregunta_multiple/actualizar/<int:pk>',
+         views.ListPregMultipleView.as_view({'patch': 'partial_update'}), name='actualiza_preg_multiple'),
+    path('api/v1/eventos/pregunta_multiple/eliminar/<int:pk>',
+         views.ListPregMultipleView.as_view({'post': 'destroy'}), name='elimina_preg_multiple'),
 ]

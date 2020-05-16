@@ -24,7 +24,7 @@ class Evento(models.Model):
 class Pregunta(models.Model):
     enunciado = models.CharField(max_length=500, null=False)
     activa = models.BooleanField(default=True)
-    evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='evento')
 
 class PreguntaAbierta(Pregunta):
     def __str__(self):
@@ -33,4 +33,16 @@ class PreguntaAbierta(Pregunta):
 class PreguntaDecimal(Pregunta):
     def __str__(self):
         return self.evento.nombre + '-- ' + self.enunciado
+
+
+class PreguntaMultiple(Pregunta):
+    esMultipleResp = models.BooleanField()
+    respuestasPermitidas =  models.IntegerField(blank=False, default=1)
+    def __str__(self):
+        return self.evento.nombre + '-- ' + self.enunciado
+
+class OpcionesMultiple(models.Model):
+    opcion = models.CharField(max_length=500)
+    preguntaSeleccionMultiple = models.ForeignKey(
+        PreguntaMultiple, on_delete=models.CASCADE, related_name='opciones')
 

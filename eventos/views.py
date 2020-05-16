@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 
-from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer
-from .models import Evento, PreguntaAbierta, PreguntaDecimal
+from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, OpcionMultipleSerializer
+from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple
 
 
 class ListEventosView(viewsets.ModelViewSet):
@@ -94,7 +94,7 @@ class ListPregAbiertaView(viewsets.ModelViewSet):
         pregunta_serializer = PregAbiertaSerializer(pregunta)
         return Response({'pregunta_abierta': pregunta_serializer.data})
 
-    def retrieveByEvent(self, request, pk=None):        
+    def retrieveByEvent(self, request, pk=None):
         pregunta = PreguntaAbierta.objects.filter(evento=pk)
         pregunta_serializer = PregAbiertaSerializer(pregunta, many=True)
         return Response({'pregunta_abierta': pregunta_serializer.data})
@@ -150,7 +150,7 @@ class ListPregDecimalView(viewsets.ModelViewSet):
         pregunta_serializer = PregDecimalSerializer(pregunta)
         return Response({'pregunta_decimal': pregunta_serializer.data})
 
-    def retrieveByEvent(self, request, pk=None):        
+    def retrieveByEvent(self, request, pk=None):
         pregunta = PreguntaDecimal.objects.filter(evento=pk)
         pregunta_serializer = PregDecimalSerializer(pregunta, many=True)
         return Response({'pregunta_decimal': pregunta_serializer.data})
@@ -170,6 +170,73 @@ class ListPregDecimalView(viewsets.ModelViewSet):
 
     def destroy(self, request, pk):
         pregunta = get_object_or_404(PreguntaDecimal, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            self.perform_destroy(pregunta)
+            return Response({'detail': 'Pregunta eliminada'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ListPregMultipleView(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PregMultipleSerializer
+
+    def get_queryset(self):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            return PreguntaMultiple.objects.all()
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def perform_create(self, serializer):
+        pregunta = serializer.save()
+        return pregunta
+
+    def create(self, request, *args, **kwargs):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            pregunta_data = request.data
+            # Extrae las opciones
+            opciones = pregunta_data.pop('opciones')
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            pregunta = self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            for opcion in opciones:
+                OpcionesMultiple.objects.create(
+                    preguntaSeleccionMultiple=pregunta, **opcion
+                )
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def retrieve(self, request, pk=None):
+        pregunta = get_object_or_404(PreguntaMultiple, id=pk)
+        pregunta_serializer = PregMultipleSerializer(pregunta)        
+        return Response({'pregunta_multiple': pregunta_serializer.data}, status=status.HTTP_200_OK)
+
+    def retrieveByEvent(self, request, pk=None):
+       preguntas = PreguntaMultiple.objects.filter(evento=pk)
+       pregunta_serializer = PregMultipleSerializer(preguntas, many=True)
+       return Response({'pregunta_multiple': pregunta_serializer.data})
+
+    def update(self, request, pk=None, **kwargs):
+        pregunta = get_object_or_404(PreguntaMultiple, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            partial = kwargs.pop('partial', False)
+            serializer = PregMultipleSerializer(
+                pregunta, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def destroy(self, request, pk):
+        pregunta = get_object_or_404(PreguntaMultiple, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
             self.perform_destroy(pregunta)
