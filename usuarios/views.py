@@ -12,6 +12,7 @@ import random
 
 from .models import Asambleista
 from .serializers import AsambleistaSerializer
+from eventos.models import Evento
 # Create your views here.
 
 def random_password():
@@ -26,7 +27,9 @@ def random_password():
 def createUser(request, pk=None):
     # Lectura del archivo de Excel
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    excel_file = BASE_DIR + "/media/plantilla_carga_usuarios.xlsx"
+    evento = Evento.objects.get(pk=pk)    
+    nombre_archivo = str(evento.documento_excel)    
+    excel_file = BASE_DIR + "/media/" + nombre_archivo
     wb = openpyxl.load_workbook(excel_file)
     worksheet = wb["Sheet1"]
 
