@@ -36,7 +36,8 @@ class PreguntaDecimal(Pregunta):
 
 
 class PreguntaMultiple(Pregunta):
-    esMultipleResp = models.BooleanField()
+    puntajeCoeficiente = models.BooleanField(default=False)
+    esMultipleResp = models.BooleanField(default=False)
     respuestasPermitidas =  models.IntegerField(blank=False, default=1)
     def __str__(self):
         return self.evento.nombre + '-- ' + self.enunciado
