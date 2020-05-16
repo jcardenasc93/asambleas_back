@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'rest_framework.authtoken',
+    'corsheaders',
 
     'usuarios',
     'eventos'
@@ -52,6 +53,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -87,16 +90,7 @@ AUTH_USER_MODEL = "usuarios.Usuario"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#        'NAME': os.environ['DB_NAME'],
-#        'USER': os.environ['DB_USER'],
-#        'PASSWORD': os.environ['DB_PASS'],
-#        'HOST': os.environ['DB_HOST'],
-#        'PORT': os.environ['DB_PORT'],
-#    }
-#}
+
 DATABASES = {
     'default': {os.environ['DATABASE_URL']}
 }
@@ -164,5 +158,6 @@ REST_FRAMEWORK = {
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = "/media/"
 
+CORS_ORIGIN_ALLOW_ALL=True
 
 django_heroku.settings(locals())
