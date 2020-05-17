@@ -75,6 +75,8 @@ def createUser(request, pk=None):
 
     else:
         return Response({'detail': 'No existe un archivo excel asociado al evento'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ListAsambleistasView(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -129,3 +131,12 @@ class ListAsambleistasView(viewsets.ModelViewSet):
             return Response({'detail': 'Usuario eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UsuarioView(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AsambleistaSerializer
+
+    def get_queryset(self):
+        return Asambleista.objects.filter(id=self.request.user.id)
