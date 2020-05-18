@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-import openpyxl
+import xlrd
 import os
 import random
 
@@ -35,28 +35,41 @@ def createUser(request, pk=None):
     if nombre_archivo:
         excel_file = BASE_DIR + "/media/" + nombre_archivo
         #excel_file = BASE_DIR + "/media/" + nombre_archivo
-        wb = openpyxl.load_workbook(excel_file)
-        worksheet = wb["Sheet1"]
+        try:
+            wb = xlrd.open_workbook(excel_file)
+        except:
+            print('No se pudo abrir archivo')
+        
+        try:
+            worksheet = wb.sheet_by_index(0)
+        except:
+            print('No se pudo abrir libro')
+        
+        
 
         # Convertimos archivo en una lista
         excel_data = list()
-        for row in worksheet.iter_rows():
+        num_cols = worksheet.ncols   # Number of columns
+        for row_idx in range(0, worksheet.nrows):    # Iterate through rows
             row_data = list()
-            for cell in row:
-                row_data.append(str(cell.value))
+            for col_idx in range(0, worksheet.ncols):  # Iterate through columns                
+                cell_obj = worksheet.cell(row_idx, col_idx)  # Get cell object by row, col
+                row_data.append(cell_obj.value)
             excel_data.append(row_data)
+
         excel_data.pop(0)
+        print(excel_data)
 
         usuarios_no_creados = []
         for data in excel_data:
             asambleista = ''
-            username = data[2] + '_' + data[0].replace(' ', '_').lower()
+            username = str(data[2]) + '_' + data[0].replace(' ', '_').lower()
             if data[6] == 'si':
                 mora = True
             else:
                 mora = False
             asambleista = Asambleista(inmueble=data[0], first_name=data[1],
-                                      documento=data[2], email=data[3], celular=data[4], coeficiente=data[5],
+                                      documento=data[2], email=data[3], celular=str(data[4]), coeficiente=data[5],
                                       mora=mora, username=username, evento_id=pk)
             asambleista.set_password(random_password())
             try:

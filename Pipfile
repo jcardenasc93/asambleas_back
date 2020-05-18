@@ -17,6 +17,7 @@ django-heroku = "*"
 gunicorn = "*"
 whitenoise = "*"
 django-cors-headers = "*"
+xlrd = "*"
 
 [requires]
 python_version = "3.8"
