@@ -33,6 +33,7 @@ def createUser(request, pk=None):
     nombre_archivo = str(evento.documento_excel)
     # Valida si existe archivo para el evento
     if nombre_archivo:
+        #excel_file = BASE_DIR + "/media/" + nombre_archivo
         excel_file = BASE_DIR + "/media/" + nombre_archivo
         wb = openpyxl.load_workbook(excel_file)
         worksheet = wb["Sheet1"]
