@@ -11,7 +11,7 @@ class Evento(models.Model):
     nombre = models.CharField(max_length=300, null=False)
     fecha = models.DateField(null=False)
     bodyCorreo = models.CharField(max_length=3000, null=False)
-    linkEvento = models.CharField(max_length=300, null=False, unique=True)
+    linkEvento = models.CharField(max_length=300, null=False)
     documento_excel = models.FileField(
         upload_to='docs_excel/', validators=[FileExtensionValidator(allowed_extensions=excel_validator)], null=True)
 
