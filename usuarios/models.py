@@ -17,9 +17,9 @@ class Asambleista(Usuario):
     coeficiente = models.DecimalField(
         max_digits=10, decimal_places=3, blank=True, null=True)    
     documento = models.CharField(max_length=20, blank=True, null=True)
-    celular = PhoneNumberField(null=True, blank=False)
+    celular = PhoneNumberField(blank=True, null=True)
     mora = models.BooleanField(default=False)
-    evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = 'asambleista'
