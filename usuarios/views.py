@@ -10,8 +10,8 @@ import xlrd
 import os
 import random
 
-from .models import Asambleista
-from .serializers import AsambleistaSerializer
+from .models import Asambleista, Apoderado
+from .serializers import AsambleistaSerializer, ApoderadosSerializer
 from eventos.models import Evento
 # Create your views here.
 
@@ -127,12 +127,25 @@ class ListAsambleistasView(viewsets.ModelViewSet):
     def update(self, request, pk=None, **kwargs):
         asambleista = get_object_or_404(Asambleista, id=pk)
         # check if request.user is staff
-        if self.request.user.is_staff:
+        if self.request.user.is_staff:            
             partial = kwargs.pop('partial', False)
             serializer = AsambleistaSerializer(
                 asambleista, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
+            try:
+                apoderados = request.data.pop('apoderados')
+                if len(apoderados) > 0:
+                    for apoderado in apoderados:
+                        representa_a = get_object_or_404(Asambleista, id=apoderado['representa_a'])
+                        apoderados_existentes = Apoderado.objects.filter(representa_a=representa_a)
+                        if len(apoderados_existentes) == 0:
+                            Apoderado.objects.create(representado_por=asambleista, representa_a=representa_a)
+                        else: print('Relacion representa a ya existe')
+            except:
+                pass
+            
+                
             return Response(serializer.data)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -154,3 +167,13 @@ class UsuarioView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Asambleista.objects.filter(id=self.request.user.id)
+
+
+class ApoderadosView(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ApoderadosSerializer
+
+    def get_queryset(self):
+        return Apoderado.objects.filter(representado_por=self.request.user.id)
+    

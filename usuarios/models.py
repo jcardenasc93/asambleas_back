@@ -31,3 +31,11 @@ class Asambleista(Usuario):
             return self.username
         else:
             return self.inmueble + ' - ' + self.first_name
+
+
+class Apoderado(models.Model):
+    representa_a = models.ForeignKey(Asambleista, on_delete=models.CASCADE, related_name='representa_a', null=True)
+    representado_por = models.ForeignKey(Asambleista, on_delete=models.CASCADE, null=True, related_name='representado_por')
+    class Meta:
+        verbose_name = 'apoderado'
+        verbose_name_plural = 'apoderados'
