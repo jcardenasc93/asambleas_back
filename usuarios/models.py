@@ -46,7 +46,7 @@ class Apoderado(models.Model):
     validado = models.BooleanField(default=False)
     documento_poder = models.FileField(upload_to='poderes/', validators=[
                                        FileExtensionValidator(allowed_extensions=doc_poder_ext)], null=False, blank=True)
-
+    sumado = models.BooleanField(default=False)
     class Meta:
         verbose_name = 'apoderado'
         verbose_name_plural = 'apoderados'

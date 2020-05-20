@@ -31,6 +31,8 @@ class PreguntaAbierta(Pregunta):
         return self.evento.nombre + '-- ' + self.enunciado
 
 class PreguntaDecimal(Pregunta):
+    # TODO: Agregar campo minimo (no obligatorio)
+    # TODO: Agregar campo maximo (no obligatorio)
     def __str__(self):
         return self.evento.nombre + '-- ' + self.enunciado
 
@@ -39,6 +41,8 @@ class PreguntaMultiple(Pregunta):
     puntajeCoeficiente = models.BooleanField(default=False)
     esMultipleResp = models.BooleanField(default=False)
     respuestasPermitidas =  models.IntegerField(blank=False, default=1)
+    # TODO: Agregar booleano de cumplimiento con la cantidad de respuestas permitidas
+
     def __str__(self):
         return self.evento.nombre + '-- ' + self.enunciado
 

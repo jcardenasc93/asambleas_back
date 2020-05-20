@@ -27,67 +27,71 @@ def random_password():
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def createUser(request, pk=None):
-    # Lectura del archivo de Excel
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    evento = Evento.objects.get(pk=pk)
-    nombre_archivo = str(evento.documento_excel)
-    # Valida si existe archivo para el evento
-    if nombre_archivo:
-        excel_file = BASE_DIR + "/media/" + nombre_archivo
-        #excel_file = BASE_DIR + "/media/" + nombre_archivo
-        try:
-            wb = xlrd.open_workbook(excel_file)
-        except:
-            print('No se pudo abrir archivo')
-
-        try:
-            worksheet = wb.sheet_by_index(0)
-        except:
-            print('No se pudo abrir libro')
-
-        # Convertimos archivo en una lista
-        excel_data = list()
-        num_cols = worksheet.ncols   # Number of columns
-        for row_idx in range(0, worksheet.nrows):    # Iterate through rows
-            row_data = list()
-            for col_idx in range(0, worksheet.ncols):  # Iterate through columns
-                # Get cell object by row, col
-                cell_obj = worksheet.cell(row_idx, col_idx)
-                row_data.append(cell_obj.value)
-            excel_data.append(row_data)
-
-        excel_data.pop(0)
-        print(excel_data)
-
-        usuarios_no_creados = []
-        for data in excel_data:
-            asambleista = ''
-            username = str(data[2]) + '_' + data[0].replace(' ', '_').lower()
-            if data[6] == 'si':
-                mora = True
-            else:
-                mora = False
-            asambleista = Asambleista(inmueble=data[0], first_name=data[1],
-                                      documento=data[2], email=data[3], celular=str(data[4]), coeficiente=data[5],
-                                      mora=mora, username=username, evento_id=pk)
-            asambleista.set_password(random_password())
+    if request.user.is_staff:
+        # Lectura del archivo de Excel
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        evento = Evento.objects.get(pk=pk)
+        nombre_archivo = str(evento.documento_excel)
+        # Valida si existe archivo para el evento
+        if nombre_archivo:
+            excel_file = BASE_DIR + "/media/" + nombre_archivo
+            #excel_file = BASE_DIR + "/media/" + nombre_archivo
             try:
-                asambleista.save()
-                # TODO: Enviar correo
-
+                wb = xlrd.open_workbook(excel_file)
             except:
-                usuarios_no_creados.append(data[0])
-                pass
+                print('No se pudo abrir archivo')
 
-        if len(usuarios_no_creados) > 0:
-            return Response({'usuarios_no_creados': usuarios_no_creados},
-                            status=status.HTTP_206_PARTIAL_CONTENT)
+            try:
+                worksheet = wb.sheet_by_index(0)
+            except:
+                print('No se pudo abrir libro')
+
+            # Convertimos archivo en una lista
+            excel_data = list()
+            num_cols = worksheet.ncols   # Number of columns
+            for row_idx in range(0, worksheet.nrows):    # Iterate through rows
+                row_data = list()
+                for col_idx in range(0, worksheet.ncols):  # Iterate through columns
+                    # Get cell object by row, col
+                    cell_obj = worksheet.cell(row_idx, col_idx)
+                    row_data.append(cell_obj.value)
+                excel_data.append(row_data)
+
+            excel_data.pop(0)
+            print(excel_data)
+
+            usuarios_no_creados = []
+            for data in excel_data:
+                asambleista = ''
+                username = str(data[2]) + '_' + \
+                    data[0].replace(' ', '_').lower()
+                if data[6] == 'si':
+                    mora = True
+                else:
+                    mora = False
+                asambleista = Asambleista(inmueble=data[0], first_name=data[1],
+                                          documento=data[2], email=data[3], celular=str(data[4]), coeficiente=data[5],
+                                          mora=mora, username=username, evento_id=pk)
+                asambleista.set_password(random_password())
+                try:
+                    asambleista.save()
+                    # TODO: Enviar correo
+
+                except:
+                    usuarios_no_creados.append(data[0])
+                    pass
+
+            if len(usuarios_no_creados) > 0:
+                return Response({'usuarios_no_creados': usuarios_no_creados},
+                                status=status.HTTP_206_PARTIAL_CONTENT)
+            else:
+                return Response({'detail': 'Todos los usuarios se crearon correctamente'},
+                                status=status.HTTP_201_CREATED)
+
         else:
-            return Response({'detail': 'Todos los usuarios se crearon correctamente'},
-                            status=status.HTTP_201_CREATED)
-
+            return Response({'detail': 'No existe un archivo excel asociado al evento'}, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response({'detail': 'No existe un archivo excel asociado al evento'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ListAsambleistasView(viewsets.ModelViewSet):
@@ -207,3 +211,20 @@ class ApoderadosView(viewsets.ModelViewSet):
             return Response({'detail': 'Apoderado eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def actualizaCoeficientes(request, pk=None):
+    if request.user.is_staff:
+        asambleista = Asambleista.objects.get(id=pk)
+        apoderados_validos = Apoderado.objects.filter(
+            representado_por=pk).filter(validado=True)
+        total_coeficiente = asambleista.coeficiente
+        for apoderado in apoderados_validos:
+            if apoderado.sumado == False:
+                total_coeficiente += apoderado.representa_a.coeficiente
+                Apoderado.objects.filter(id=apoderado.id).update(sumado=True)
+
+        Asambleista.objects.filter(id=pk).update(coeficiente=total_coeficiente)
+        return Response({"nuevo_coeficiente": total_coeficiente})

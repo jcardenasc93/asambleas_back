@@ -30,4 +30,8 @@ urlpatterns = [
          views.ApoderadosView.as_view({'patch': 'update'}), name='actualiza_apoderado'),
     path('api/v1/asambleistas/apoderado/eliminar/<int:pk>',
          views.ApoderadosView.as_view({'delete': 'destroy'}), name='elimina_apoderado'),
+     
+    ### COEFICIENTES ###
+    path('api/v1/asambleistas/caclulo_coeficientes/<int:pk>',
+         views.actualizaCoeficientes, name='calculo_coeficientes'),
 ]
