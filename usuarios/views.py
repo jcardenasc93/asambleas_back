@@ -183,14 +183,30 @@ class ApoderadosView(viewsets.ModelViewSet):
 
     def update(self, request, pk=None, **kwargs):
         apoderado = get_object_or_404(Apoderado, id=pk)
+        representa_a = None
+        try:
+            representa_a = request.data['representa_a']
+        except:
+            pass
         # check if request.user is staff
         if self.request.user.is_staff:
-            partial = kwargs.pop('partial', False)
-            serializer = ApoderadosSerializer(
-                apoderado, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            return Response(serializer.data)
+            if representa_a:
+                if len(Apoderado.objects.filter(representa_a=representa_a).filter(validado=True)) == 0:
+                    partial = kwargs.pop('partial', False)
+                    serializer = ApoderadosSerializer(
+                        apoderado, data=request.data, partial=partial)
+                    serializer.is_valid(raise_exception=True)
+                    self.perform_update(serializer)
+                    return Response(serializer.data)
+                else:
+                    return Response({'detail': 'El asambleista ya cuenta con otro apoderado'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                partial = kwargs.pop('partial', False)
+                serializer = ApoderadosSerializer(
+                    apoderado, data=request.data, partial=partial)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)                
+                return Response(serializer.data)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -221,10 +237,22 @@ def actualizaCoeficientes(request, pk=None):
         apoderados_validos = Apoderado.objects.filter(
             representado_por=pk).filter(validado=True)
         total_coeficiente = asambleista.coeficiente
-        for apoderado in apoderados_validos:
-            if apoderado.sumado == False:
-                total_coeficiente += apoderado.representa_a.coeficiente
-                Apoderado.objects.filter(id=apoderado.id).update(sumado=True)
+        if len(apoderados_validos) > 0:
+            for apoderado in apoderados_validos:
+                if apoderado.sumado == False:
+                    total_coeficiente += apoderado.representa_a.coeficiente
+                    Apoderado.objects.filter(
+                        id=apoderado.id).update(sumado=True)
+
+        apoderados_no_validos = Apoderado.objects.filter(
+            representado_por=pk).filter(validado=False).filter(sumado=True)
+        print(apoderados_no_validos)
+        if len(apoderados_no_validos) > 0:
+            for apoderado in apoderados_no_validos:
+                total_coeficiente -= apoderado.representa_a.coeficiente
+                Apoderado.objects.filter(id=apoderado.id).update(sumado=False, representa_a=None)
+                
 
         Asambleista.objects.filter(id=pk).update(coeficiente=total_coeficiente)
         return Response({"nuevo_coeficiente": total_coeficiente})
+
