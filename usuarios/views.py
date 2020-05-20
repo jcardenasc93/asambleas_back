@@ -39,21 +39,20 @@ def createUser(request, pk=None):
             wb = xlrd.open_workbook(excel_file)
         except:
             print('No se pudo abrir archivo')
-        
+
         try:
             worksheet = wb.sheet_by_index(0)
         except:
             print('No se pudo abrir libro')
-        
-        
 
         # Convertimos archivo en una lista
         excel_data = list()
         num_cols = worksheet.ncols   # Number of columns
         for row_idx in range(0, worksheet.nrows):    # Iterate through rows
             row_data = list()
-            for col_idx in range(0, worksheet.ncols):  # Iterate through columns                
-                cell_obj = worksheet.cell(row_idx, col_idx)  # Get cell object by row, col
+            for col_idx in range(0, worksheet.ncols):  # Iterate through columns
+                # Get cell object by row, col
+                cell_obj = worksheet.cell(row_idx, col_idx)
                 row_data.append(cell_obj.value)
             excel_data.append(row_data)
 
@@ -127,25 +126,13 @@ class ListAsambleistasView(viewsets.ModelViewSet):
     def update(self, request, pk=None, **kwargs):
         asambleista = get_object_or_404(Asambleista, id=pk)
         # check if request.user is staff
-        if self.request.user.is_staff:            
+        if self.request.user.is_staff:
             partial = kwargs.pop('partial', False)
             serializer = AsambleistaSerializer(
                 asambleista, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-            try:
-                apoderados = request.data.pop('apoderados')
-                if len(apoderados) > 0:
-                    for apoderado in apoderados:
-                        representa_a = get_object_or_404(Asambleista, id=apoderado['representa_a'])
-                        apoderados_existentes = Apoderado.objects.filter(representa_a=representa_a)
-                        if len(apoderados_existentes) == 0:
-                            Apoderado.objects.create(representado_por=asambleista, representa_a=representa_a)
-                        else: print('Relacion representa a ya existe')
-            except:
-                pass
-            
-                
+
             return Response(serializer.data)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -175,5 +162,48 @@ class ApoderadosView(viewsets.ModelViewSet):
     serializer_class = ApoderadosSerializer
 
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return Apoderado.objects.all()
         return Apoderado.objects.filter(representado_por=self.request.user.id)
-    
+
+    def perform_create(self, serializer):
+        asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
+        serializer.save(representado_por=asambleista)
+
+    def create(self, request, pk=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        apoderado = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response({"Apoderado creado correctamente"}, status=status.HTTP_201_CREATED)
+
+    def update(self, request, pk=None, **kwargs):
+        apoderado = get_object_or_404(Apoderado, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            partial = kwargs.pop('partial', False)
+            serializer = ApoderadosSerializer(
+                apoderado, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def retrieve(self, request, pk=None):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            apoderado = Apoderado.objects.get(id=pk)
+            apoderado_serializer = ApoderadosSerializer(apoderado)
+            return Response({'apoderado': apoderado_serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def destroy(self, request, pk):
+        apoderado = get_object_or_404(Apoderado, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            self.perform_destroy(apoderado)
+            return Response({'detail': 'Apoderado eliminado'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Asambleista
+from .models import Asambleista, Apoderado
 # Register your models here.
-
-admin.site.register(Asambleista)
+models = [Asambleista, Apoderado]
+admin.site.register(models)

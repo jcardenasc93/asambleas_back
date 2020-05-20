@@ -5,7 +5,7 @@ from .models import Asambleista, Apoderado
 
 class ApoderadosSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Apoderado        
+        model = Apoderado
         fields = '__all__'
 
 class AsambleistaSerializer(serializers.ModelSerializer):

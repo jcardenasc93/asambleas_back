@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import FileExtensionValidator
 
 from eventos.models import Evento
 
@@ -21,6 +22,7 @@ class Asambleista(Usuario):
     mora = models.BooleanField(default=False)
     evento = models.ForeignKey(
         Evento, on_delete=models.CASCADE, blank=True, null=True)
+    tiene_representante = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'asambleista'
@@ -33,9 +35,18 @@ class Asambleista(Usuario):
             return self.inmueble + ' - ' + self.first_name
 
 
+doc_poder_ext = ['pdf', 'PDF', 'JPEG', 'JPG', 'PNG', 'png', 'jpg', 'jpeg']
+
+
 class Apoderado(models.Model):
-    representa_a = models.ForeignKey(Asambleista, on_delete=models.CASCADE, related_name='representa_a', null=True)
-    representado_por = models.ForeignKey(Asambleista, on_delete=models.CASCADE, null=True, related_name='representado_por')
+    representa_a = models.ForeignKey(
+        Asambleista, on_delete=models.CASCADE, related_name='representa_a', null=True, blank=True)
+    representado_por = models.ForeignKey(
+        Asambleista, on_delete=models.CASCADE, null=True, related_name='representado_por')
+    validado = models.BooleanField(default=False)
+    documento_poder = models.FileField(upload_to='poderes/', validators=[
+                                       FileExtensionValidator(allowed_extensions=doc_poder_ext)], null=False, blank=True)
+
     class Meta:
         verbose_name = 'apoderado'
         verbose_name_plural = 'apoderados'
