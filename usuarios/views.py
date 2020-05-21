@@ -117,6 +117,17 @@ class ListAsambleistasView(viewsets.ModelViewSet):
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
+    def retrieveAsambleista(self, request, pk=None):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            asambleista = get_object_or_404(Asambleista, id=pk)
+            print(asambleista)
+            asambleista_serializer = AsambleistaSerializer(
+                asambleista)
+            return Response({'asambleista': asambleista_serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
     def retrieve(self, request, evento=None):
         # check if request.user is staff
         if self.request.user.is_staff:

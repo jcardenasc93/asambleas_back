@@ -7,6 +7,8 @@ urlpatterns = [
     path('api/v1/new_asam/<int:pk>', views.createUser),
     path('api/v1/asambleistas/',
          views.ListAsambleistasView.as_view({'get': 'list'}), name='list_users'),
+    path('api/v1/asambleista/<int:pk>', views.ListAsambleistasView.as_view(
+        {'get': 'retrieveAsambleista'}), name='get_asambleista'),
     path('api/v1/asambleistas/<int:evento>', views.ListAsambleistasView.as_view(
         {'get': 'retrieve'}), name='list_asambleistas_evento'),
     path('api/v1/asambleistas/nuevo',
