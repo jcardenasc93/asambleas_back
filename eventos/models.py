@@ -31,8 +31,9 @@ class PreguntaAbierta(Pregunta):
         return self.evento.nombre + '-- ' + self.enunciado
 
 class PreguntaDecimal(Pregunta):
-    # TODO: Agregar campo minimo (no obligatorio)
-    # TODO: Agregar campo maximo (no obligatorio)
+    minimo = models.IntegerField(verbose_name='valor_minimo')
+    maximo = models.IntegerField(verbose_name='valor_maximo')
+    
     def __str__(self):
         return self.evento.nombre + '-- ' + self.enunciado
 
