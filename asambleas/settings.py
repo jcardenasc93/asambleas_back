@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'usuarios',
-    'eventos'
+    'eventos',
+    'respuestas'
 ]
 
 MIDDLEWARE = [
@@ -119,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
