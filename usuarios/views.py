@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 import xlrd
 import os
 import random
+import boto3
 
 from .models import Asambleista, Apoderado
 from .serializers import AsambleistaSerializer, ApoderadosSerializer
@@ -29,57 +30,55 @@ def random_password():
 def createUser(request, pk=None):
     if request.user.is_staff:
         # Lectura del archivo de Excel
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         evento = Evento.objects.get(pk=pk)
         nombre_archivo = str(evento.documento_excel)
         # Valida si existe archivo para el evento
         if nombre_archivo:
-            excel_file = BASE_DIR + "/media/" + nombre_archivo
-            #excel_file = BASE_DIR + "/media/" + nombre_archivo
-            try:
-                wb = xlrd.open_workbook(excel_file)
-            except:
-                print('No se pudo abrir archivo')
+            nombre_archivo = 'media/' + nombre_archivo
+            # Access to S3 bucket
+            AWS_ACCESS_KEY_ID = os.environ.get(
+                'BUCKETEER_AWS_ACCESS_KEY_ID', '')
+            AWS_SECRET_ACCESS_KEY = os.environ.get(
+                'BUCKETEER_AWS_SECRET_ACCESS_KEY', '')
+            AWS_STORAGE_BUCKET_NAME = os.environ.get(
+                'BUCKETEER_BUCKET_NAME', '')
 
-            try:
-                worksheet = wb.sheet_by_index(0)
-            except:
-                print('No se pudo abrir libro')
+            s3_session = boto3.client(service_name='s3',
+                                      aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+            file_obj = s3_session.get_object(
+                Bucket=AWS_STORAGE_BUCKET_NAME, Key=nombre_archivo)
+            excel_content = file_obj['Body'].read().decode('utf-8')
 
-            # Convertimos archivo en una lista
-            excel_data = list()
-            num_cols = worksheet.ncols   # Number of columns
-            for row_idx in range(0, worksheet.nrows):    # Iterate through rows
-                row_data = list()
-                for col_idx in range(0, worksheet.ncols):  # Iterate through columns
-                    # Get cell object by row, col
-                    cell_obj = worksheet.cell(row_idx, col_idx)
-                    row_data.append(cell_obj.value)
-                excel_data.append(row_data)
-
-            excel_data.pop(0)
-            print(excel_data)
+            excel_content = excel_content.split('\n')
+            excel_content.pop(0)
 
             usuarios_no_creados = []
-            for data in excel_data:
-                asambleista = ''
-                username = str(data[2]) + '_' + \
-                    data[0].replace(' ', '_').lower()
-                if data[6] == 'si':
-                    mora = True
-                else:
-                    mora = False
-                asambleista = Asambleista(inmueble=data[0], first_name=data[1],
-                                          documento=data[2], email=data[3], celular=str(data[4]), coeficiente=data[5],
-                                          mora=mora, username=username, evento_id=pk)
-                asambleista.set_password(random_password())
-                try:
-                    asambleista.save()
-                    # TODO: Enviar correo
+            for row in excel_content:    # Iterate through rows
+                if row != '':
+                    inmueble, nombres, documento, correo, celular, coeficiente, mora = row.split(
+                        ';')
+                    asambleista = ''
+                    username = documento + '_' + \
+                        inmueble.replace(' ', '_').lower()
+                    if mora == 'si':
+                        mora = True
+                    else:
+                        mora = False
 
-                except:
-                    usuarios_no_creados.append(data[0])
-                    pass
+                    asambleista = Asambleista(inmueble=inmueble, first_name=nombres,
+                                              documento=documento, email=correo, celular=celular, coeficiente=float(
+                                                  coeficiente),
+                                              mora=mora, username=username, evento_id=pk)
+                    asambleista.set_password(random_password())
+
+                    try:
+                        asambleista.save()
+                        # TODO: Enviar correo
+
+                    except:
+                        usuarios_no_creados.append(inmueble)
+                        pass
 
             if len(usuarios_no_creados) > 0:
                 return Response({'usuarios_no_creados': usuarios_no_creados},
@@ -216,7 +215,7 @@ class ApoderadosView(viewsets.ModelViewSet):
                 serializer = ApoderadosSerializer(
                     apoderado, data=request.data, partial=partial)
                 serializer.is_valid(raise_exception=True)
-                self.perform_update(serializer)                
+                self.perform_update(serializer)
                 return Response(serializer.data)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -227,6 +226,15 @@ class ApoderadosView(viewsets.ModelViewSet):
             apoderado = Apoderado.objects.get(id=pk)
             apoderado_serializer = ApoderadosSerializer(apoderado)
             return Response({'apoderado': apoderado_serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def retrieveByEvent(self, request, pk=None):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            apoderados = Apoderado.objects.filter(evento=pk)
+            apoderados_serializer = ApoderadosSerializer(apoderados, many=True)
+            return Response({'apoderados': apoderados_serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -261,9 +269,8 @@ def actualizaCoeficientes(request, pk=None):
         if len(apoderados_no_validos) > 0:
             for apoderado in apoderados_no_validos:
                 total_coeficiente -= apoderado.representa_a.coeficiente
-                Apoderado.objects.filter(id=apoderado.id).update(sumado=False, representa_a=None)
-                
+                Apoderado.objects.filter(id=apoderado.id).update(
+                    sumado=False, representa_a=None)
 
         Asambleista.objects.filter(id=pk).update(coeficiente=total_coeficiente)
         return Response({"nuevo_coeficiente": total_coeficiente})
-

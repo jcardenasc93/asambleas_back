@@ -28,6 +28,8 @@ urlpatterns = [
          views.ApoderadosView.as_view({'post': 'create'}), name='crea_apoderado'),
     path('api/v1/asambleistas/apoderado/<int:pk>',
          views.ApoderadosView.as_view({'get': 'retrieve'}), name='retrieve_apoderado'),
+    path('api/v1/asambleistas/apoderados/<int:pk>',
+         views.ApoderadosView.as_view({'get': 'retrieveByEvent'}), name='retrieve_apoderados'),
     path('api/v1/asambleistas/apoderado/actualizar/<int:pk>',
          views.ApoderadosView.as_view({'patch': 'update'}), name='actualiza_apoderado'),
     path('api/v1/asambleistas/apoderado/eliminar/<int:pk>',

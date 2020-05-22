@@ -4,7 +4,7 @@ import os
 # Create your models here.
 
 
-excel_validator = ['xlsx']
+excel_validator = ['csv']
 
 
 class Evento(models.Model):

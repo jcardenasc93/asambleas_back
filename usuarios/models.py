@@ -39,6 +39,8 @@ doc_poder_ext = ['pdf', 'PDF', 'JPEG', 'JPG', 'PNG', 'png', 'jpg', 'jpeg']
 
 
 class Apoderado(models.Model):
+    evento = models.ForeignKey(
+        Evento, on_delete=models.CASCADE)
     representa_a = models.ForeignKey(
         Asambleista, on_delete=models.CASCADE, related_name='representa_a', null=True, blank=True)
     representado_por = models.ForeignKey(
