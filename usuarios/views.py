@@ -237,6 +237,15 @@ class ApoderadosView(viewsets.ModelViewSet):
             return Response({'apoderados': apoderados_serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    def retrieveByAsam(self, request, pk=None):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            apoderados = Apoderado.objects.filter(representado_por=pk)
+            apoderados_serializer = ApoderadosSerializer(apoderados, many=True)
+            return Response({'apoderados': apoderados_serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def destroy(self, request, pk):
         apoderado = get_object_or_404(Apoderado, id=pk)
