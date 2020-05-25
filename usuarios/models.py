@@ -27,6 +27,7 @@ class Asambleista(Usuario):
     class Meta:
         verbose_name = 'asambleista'
         verbose_name_plural = 'asambleistas'
+        ordering = ['inmueble']
 
     def __str__(self):
         if self.is_staff:

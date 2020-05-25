@@ -232,7 +232,7 @@ class ApoderadosView(viewsets.ModelViewSet):
     def retrieveByEvent(self, request, pk=None):
         # check if request.user is staff
         if self.request.user.is_staff:
-            apoderados = Apoderado.objects.filter(evento=pk)
+            apoderados = Apoderado.objects.filter(evento=pk).order_by('-inmueble')
             apoderados_serializer = ApoderadosSerializer(apoderados, many=True)
             return Response({'apoderados': apoderados_serializer.data}, status=status.HTTP_200_OK)
         else:
