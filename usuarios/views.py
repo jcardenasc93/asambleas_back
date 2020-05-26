@@ -24,6 +24,12 @@ def random_password():
         password += random.choice(chars)
     return password
 
+def random_username():
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+}{"
+    username = ""
+    for i in range(10):
+        username += random.choice(chars)
+    return username
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -57,10 +63,10 @@ def createUser(request, pk=None):
             for row in excel_content:    # Iterate through rows
                 if row != '':
                     inmueble, nombres, documento, correo, celular, coeficiente, mora = row.split(
-                        ';')
+                        ',')
                     asambleista = ''
-                    username = documento + '_' + \
-                        inmueble.replace(' ', '_').lower()
+                    username = random_username()
+                    
                     if mora == 'si':
                         mora = True
                     else:
@@ -70,7 +76,7 @@ def createUser(request, pk=None):
                                               documento=documento, email=correo, celular=celular, coeficiente=float(
                                                   coeficiente),
                                               mora=mora, username=username, evento_id=pk)
-                    asambleista.set_password(random_password())
+                    asambleista.set_password(random_password())                    
 
                     try:
                         asambleista.save()
