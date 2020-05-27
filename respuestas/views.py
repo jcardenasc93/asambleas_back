@@ -98,18 +98,32 @@ class RespDecimalView(viewsets.ModelViewSet):
             PreguntaDecimal, id=request.data['pregunta'])
         # valida pregunta activa
         if pregunta.activa:
-            respuesta = request.data['respuesta_decimal']
-            if pregunta.minimo <= respuesta <= pregunta.maximo:
-                serializer = self.get_serializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                respuesta = self.perform_create(serializer)
-                if respuesta:
-                    headers = self.get_success_headers(serializer.data)
-                    return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            if pregunta.bloquea_mora == False:
+                respuesta = request.data['respuesta_decimal']
+                if pregunta.minimo <= respuesta <= pregunta.maximo:
+                    serializer = self.get_serializer(data=request.data)
+                    serializer.is_valid(raise_exception=True)
+                    respuesta = self.perform_create(serializer)
+                    if respuesta:
+                        headers = self.get_success_headers(serializer.data)
+                        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                    else:
+                        return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'El valor no esta entre los rangos min y max permitidos'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({'detail': 'El valor no esta entre los rangos min y max permitidos'}, status=status.HTTP_400_BAD_REQUEST)
+                asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
+                if asambleista.mora:
+                    return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    serializer = self.get_serializer(data=request.data)
+                    serializer.is_valid(raise_exception=True)
+                    respuesta = self.perform_create(serializer)
+                    if respuesta:
+                        headers = self.get_success_headers(serializer.data)
+                        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                    else:
+                        return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
             return Response({'detail': 'La pregunta no se encuentra activa'}, status=status.HTTP_400_BAD_REQUEST)
