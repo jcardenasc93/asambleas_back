@@ -3,18 +3,30 @@ from eventos.models import PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, O
 from usuarios.models import Asambleista
 # Create your models here.
 
+
 class Respuesta(models.Model):
-    asambleista = models.ForeignKey(Asambleista, on_delete=models.CASCADE, related_name='asambleista', null=True)
-    fecha_hora = models.DateTimeField(verbose_name='fecha_hora', auto_now_add=True)
+    asambleista = models.ForeignKey(
+        Asambleista, on_delete=models.CASCADE, related_name='asambleista', null=True)
+    fecha_hora = models.DateTimeField(
+        verbose_name='fecha_hora', auto_now_add=True)
+
 
 class RespuestaAbierta(Respuesta):
-    pregunta = models.ForeignKey(PreguntaAbierta, on_delete=models.CASCADE, related_name='pregunta_abierta')
+    pregunta = models.ForeignKey(
+        PreguntaAbierta, on_delete=models.CASCADE, related_name='pregunta_abierta')
     respuesta_texto = models.TextField(max_length=512, blank=True, default='')
 
+
 class RespuestaDecimal(Respuesta):
-    pregunta = models.ForeignKey(PreguntaDecimal, on_delete=models.CASCADE, related_name='pregunta_decimal')
+    pregunta = models.ForeignKey(
+        PreguntaDecimal, on_delete=models.CASCADE, related_name='pregunta_decimal')
     respuesta_decimal = models.DecimalField(max_digits=20, decimal_places=3)
 
+
 class RespuestaOpMultiple(Respuesta):
-    pregunta = models.ForeignKey(PreguntaMultiple, on_delete=models.CASCADE, related_name='pregunta_multiple')
-    opciones = models.ManyToManyField(OpcionesMultiple, related_name='opcion_multiple')
+    pregunta = models.ForeignKey(
+        PreguntaMultiple, on_delete=models.CASCADE, related_name='pregunta_multiple')
+    opciones = models.ManyToManyField(
+        OpcionesMultiple, related_name='opcion_multiple')
+    coeficientes = models.DecimalField(
+        max_digits=10, decimal_places=3, blank=True, null=True)

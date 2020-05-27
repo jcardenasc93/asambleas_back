@@ -170,6 +170,12 @@ class RespOpMultipleView(viewsets.ModelViewSet):
             PreguntaMultiple, id=request.data['pregunta'])
         # valida pregunta activa
         if pregunta.activa:
+            if pregunta.puntajeCoeficiente:
+                asambleista = get_object_or_404(
+                    Asambleista, id=self.request.user.id)
+                request.data['coeficientes'] = asambleista.coeficiente
+            else:
+                request.data['coeficientes'] = 1.000
             if pregunta.bloquea_mora == False:
                 maxResps = pregunta.respuestasPermitidas
                 serializer = self.get_serializer(data=request.data)
