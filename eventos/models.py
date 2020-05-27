@@ -43,6 +43,7 @@ class PreguntaMultiple(Pregunta):
     puntajeCoeficiente = models.BooleanField(default=False)
     esMultipleResp = models.BooleanField(default=False)
     respuestasPermitidas =  models.IntegerField(blank=False, default=1)
+    strictMax = models.BooleanField(default=False)
     # TODO: Agregar booleano de cumplimiento con la cantidad de respuestas permitidas
 
     def __str__(self):

@@ -142,7 +142,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
             serializer = RespOpMultipleSerializer(respuestas, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def perform_create(self, serializer, maxResps, multipleResp):
+    def perform_create(self, serializer, maxResps, multipleResp, strictMax):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
         respuesta_repetida = RespuestaOpMultiple.objects.filter(
             asambleista=asambleista.id)
@@ -150,11 +150,16 @@ class RespOpMultipleView(viewsets.ModelViewSet):
         if len(respuesta_repetida) == 0:
             if multipleResp:
                 opciones = self.request.data['opciones']
-                print(opciones)
-                if len(opciones) > maxResps:
-                    return 1
+                if strictMax:
+                    if len(opciones) != maxResps:
+                        return 1
+                    else:
+                        return serializer.save(asambleista=asambleista)
                 else:
-                    return serializer.save(asambleista=asambleista)
+                    if len(opciones) > maxResps:
+                        return 1
+                    else:
+                        return serializer.save(asambleista=asambleista)
             else:
                 return serializer.save(asambleista=asambleista)
         else:
@@ -170,13 +175,13 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                 serializer = self.get_serializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 respuesta = self.perform_create(
-                    serializer, maxResps, pregunta.esMultipleResp)
+                    serializer, maxResps, pregunta.esMultipleResp, pregunta.strictMax)
                 if respuesta:
                     if respuesta != 1:
                         headers = self.get_success_headers(serializer.data)
                         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
                     else:
-                        return Response({'detail': 'Las opciones seleccionadas superan el numero de opciones permitidas'}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'detail': 'Cantidad de opciones seleccionadas no permitida'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
             else:
