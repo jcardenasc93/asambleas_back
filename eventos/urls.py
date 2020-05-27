@@ -45,7 +45,7 @@ urlpatterns = [
          views.ListPregDecimalView.as_view({'post': 'destroy'}), name='elimina_preg_decimal'),
 
 
-    #### PREGUNTA DECIMAL ####
+    #### PREGUNTA MULTIPLE ####
     path('api/v1/eventos/pregunta_multiple/',
          views.ListPregMultipleView.as_view({'get': 'list'}), name='list_preg_multiple'),
     path('api/v1/eventos/pregunta_multiple/<int:pk>',

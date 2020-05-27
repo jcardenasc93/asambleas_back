@@ -1,5 +1,5 @@
 from django.db import models
-from eventos.models import PreguntaAbierta, PreguntaDecimal
+from eventos.models import PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple
 from usuarios.models import Asambleista
 # Create your models here.
 
@@ -14,3 +14,7 @@ class RespuestaAbierta(Respuesta):
 class RespuestaDecimal(Respuesta):
     pregunta = models.ForeignKey(PreguntaDecimal, on_delete=models.CASCADE, related_name='pregunta_decimal')
     respuesta_decimal = models.DecimalField(max_digits=20, decimal_places=3)
+
+class RespuestaOpMultiple(Respuesta):
+    pregunta = models.ForeignKey(PreguntaMultiple, on_delete=models.CASCADE, related_name='pregunta_multiple')
+    opciones = models.ForeignKey(OpcionesMultiple, on_delete=models.SET_NULL, related_name='opcion_multiple', null=True)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from .models import RespuestaAbierta, RespuestaDecimal
+from .models import RespuestaAbierta, RespuestaDecimal, RespuestaOpMultiple
 
 
 class RespAbiertaSerializer(serializers.ModelSerializer):
@@ -11,4 +11,10 @@ class RespAbiertaSerializer(serializers.ModelSerializer):
 class RespDecimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = RespuestaDecimal
+        fields = '__all__'
+
+
+class RespOpMultipleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RespuestaOpMultiple
         fields = '__all__'
