@@ -14,7 +14,7 @@ class Usuario(AbstractUser):
 
 
 class Asambleista(Usuario):
-    inmueble = models.CharField(max_length=80, blank=True, null=True)
+    inmueble = models.CharField(max_length=500, blank=True, null=True)
     coeficiente = models.DecimalField(
         max_digits=10, decimal_places=3, blank=True, null=True)
     documento = models.CharField(max_length=20, blank=True, null=True)

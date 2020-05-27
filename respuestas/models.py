@@ -17,4 +17,4 @@ class RespuestaDecimal(Respuesta):
 
 class RespuestaOpMultiple(Respuesta):
     pregunta = models.ForeignKey(PreguntaMultiple, on_delete=models.CASCADE, related_name='pregunta_multiple')
-    opciones = models.ForeignKey(OpcionesMultiple, on_delete=models.SET_NULL, related_name='opcion_multiple', null=True)
+    opciones = models.ManyToManyField(OpcionesMultiple, related_name='opcion_multiple')
