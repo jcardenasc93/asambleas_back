@@ -30,7 +30,7 @@ class RespAbiertaView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
-        respuesta_repetida = RespuestaAbierta.objects.filter(self.request.data['pregunta']).filter(
+        respuesta_repetida = RespuestaOpMultiple.objects.filter(pregunta=self.request.data['pregunta']).filter(
             asambleista=asambleista.id)
 
         if len(respuesta_repetida) == 0:
@@ -85,7 +85,7 @@ class RespDecimalView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
-        respuesta_repetida = RespuestaDecimal.objects.filter(pregunta=self.request.data['pregunta']).filter(
+        respuesta_repetida = RespuestaOpMultiple.objects.filter(pregunta=self.request.data['pregunta']).filter(
             asambleista=asambleista.id)
         print(len(respuesta_repetida))
         if len(respuesta_repetida) == 0:
@@ -144,8 +144,9 @@ class RespOpMultipleView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer, maxResps, multipleResp, strictMax):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
-        respuesta_repetida = RespuestaOpMultiple.objects.filter(self.request.data['pregunta']).filter(
+        respuesta_repetida = RespuestaOpMultiple.objects.filter(pregunta=self.request.data['pregunta']).filter(
             asambleista=asambleista.id)
+        print(respuesta_repetida)
 
         if len(respuesta_repetida) == 0:
             if multipleResp:
