@@ -9,6 +9,7 @@ from eventos.models import Evento
 
 
 class Usuario(AbstractUser):
+    first_name = models.CharField(max_length=200)
     def __str__(self):
         return self.username + ' - ' + self.first_name
 
