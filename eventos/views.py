@@ -243,3 +243,16 @@ class ListPregMultipleView(viewsets.ModelViewSet):
             return Response({'detail': 'Pregunta eliminada'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def solicitaQuorum(request, pk=None):
+    if request.user.is_staff:
+        evento = get_object_or_404(Evento, id=pk)
+        quorumStatus = evento.regitroQuorum
+        Evento.objects.filter(id=pk).update(regitroQuorum=not(quorumStatus))
+            
+        return Response({"detail": "Se actualizó estado del quorum de la asamblea"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)

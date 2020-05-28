@@ -14,6 +14,8 @@ class Evento(models.Model):
     linkEvento = models.CharField(max_length=300, null=False)
     documento_excel = models.FileField(
         upload_to='docs_excel/', validators=[FileExtensionValidator(allowed_extensions=excel_validator)], null=True)
+    regitroQuorum = models.BooleanField(default=False)
+    quorum = models.DecimalField(default=0.0, max_digits=25, decimal_places=3)
 
     @property
     def filename(self):

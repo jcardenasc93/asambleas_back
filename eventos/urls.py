@@ -58,4 +58,8 @@ urlpatterns = [
          views.ListPregMultipleView.as_view({'patch': 'partial_update'}), name='actualiza_preg_multiple'),
     path('api/v1/eventos/pregunta_multiple/eliminar/<int:pk>',
          views.ListPregMultipleView.as_view({'post': 'destroy'}), name='elimina_preg_multiple'),
+
+
+    ### QUORUM ###
+    path('api/v1/quorum_status/<int:pk>', views.solicitaQuorum, name='solicita_quorum'),
 ]
