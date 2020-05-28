@@ -24,6 +24,7 @@ class Asambleista(Usuario):
     evento = models.ForeignKey(
         Evento, on_delete=models.CASCADE, blank=True, null=True)
     tiene_representante = models.BooleanField(default=False)
+    quorumStatus = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'asambleista'

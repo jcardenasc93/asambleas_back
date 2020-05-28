@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, OpcionMultipleSerializer
 from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple
+from usuarios.models import Asambleista
 
 
 class ListEventosView(viewsets.ModelViewSet):
@@ -214,13 +215,13 @@ class ListPregMultipleView(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         pregunta = get_object_or_404(PreguntaMultiple, id=pk)
-        pregunta_serializer = PregMultipleSerializer(pregunta)        
+        pregunta_serializer = PregMultipleSerializer(pregunta)
         return Response({'pregunta_multiple': pregunta_serializer.data}, status=status.HTTP_200_OK)
 
     def retrieveByEvent(self, request, pk=None):
-       preguntas = PreguntaMultiple.objects.filter(evento=pk)
-       pregunta_serializer = PregMultipleSerializer(preguntas, many=True)
-       return Response({'pregunta_multiple': pregunta_serializer.data})
+        preguntas = PreguntaMultiple.objects.filter(evento=pk)
+        pregunta_serializer = PregMultipleSerializer(preguntas, many=True)
+        return Response({'pregunta_multiple': pregunta_serializer.data})
 
     def update(self, request, pk=None, **kwargs):
         pregunta = get_object_or_404(PreguntaMultiple, id=pk)
@@ -252,7 +253,23 @@ def solicitaQuorum(request, pk=None):
         evento = get_object_or_404(Evento, id=pk)
         quorumStatus = evento.regitroQuorum
         Evento.objects.filter(id=pk).update(regitroQuorum=not(quorumStatus))
-            
+
         return Response({"detail": "Se actualizó estado del quorum de la asamblea"}, status=status.HTTP_200_OK)
     else:
         return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def regitroQuorum(request, pk=None):
+    usuario = get_object_or_404(Asambleista, id=request.user.id)
+    evento = get_object_or_404(Evento, id=pk)
+    if (usuario.quorumStatus == False) and (evento.regitroQuorum):
+        quorum = evento.quorum
+        quorum += usuario.coeficiente
+        Evento.objects.filter(id=pk).update(quorum=quorum)
+        Asambleista.objects.filter(
+            id=request.user.id).update(quorumStatus=True)
+        return Response({"detail": "El registro de asistencia del asambleista es correcto"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"detail": "El usuario no esta habilitado para registrar quorum"}, status=status.HTTP_400_BAD_REQUEST)
