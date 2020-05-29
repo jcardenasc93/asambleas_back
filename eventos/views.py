@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from datetime import datetime, timedelta
+
 
 from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, OpcionMultipleSerializer
 from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple
@@ -104,6 +106,14 @@ class ListPregAbiertaView(viewsets.ModelViewSet):
         pregunta = get_object_or_404(PreguntaAbierta, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
+            try:
+                if request.data['activa']:
+                    segundos = pregunta.timer
+                    time_final = datetime.now() + timedelta(seconds=segundos)
+                    time_final = time_final.time().strftime('%H:%M:%S')
+                    request.data['time_final'] = time_final
+            except Exception as e:
+                print(e)
             partial = kwargs.pop('partial', False)
             serializer = PregAbiertaSerializer(
                 pregunta, data=request.data, partial=partial)
@@ -160,6 +170,14 @@ class ListPregDecimalView(viewsets.ModelViewSet):
         pregunta = get_object_or_404(PreguntaDecimal, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
+            try:
+                if request.data['activa']:
+                    segundos = pregunta.timer
+                    time_final = datetime.now() + timedelta(seconds=segundos)
+                    time_final = time_final.time().strftime('%H:%M:%S')
+                    request.data['time_final'] = time_final
+            except Exception as e:
+                print(e)
             partial = kwargs.pop('partial', False)
             serializer = PregDecimalSerializer(
                 pregunta, data=request.data, partial=partial)
@@ -227,6 +245,14 @@ class ListPregMultipleView(viewsets.ModelViewSet):
         pregunta = get_object_or_404(PreguntaMultiple, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
+            try:
+                if request.data['activa']:
+                    segundos = pregunta.timer
+                    time_final = datetime.now() + timedelta(seconds=segundos)
+                    time_final = time_final.time().strftime('%H:%M:%S')
+                    request.data['time_final'] = time_final
+            except Exception as e:
+                print(e)
             partial = kwargs.pop('partial', False)
             serializer = PregMultipleSerializer(
                 pregunta, data=request.data, partial=partial)
@@ -275,12 +301,12 @@ def regitroQuorum(request, pk=None):
         return Response({"detail": "El usuario no esta habilitado para registrar quorum"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def reinicioQuorum(request, pk=None):
     if request.user.is_staff:
-        usuarios = Asambleista.objects.filter(evento=pk).update(quorumStatus=False)
+        usuarios = Asambleista.objects.filter(
+            evento=pk).update(quorumStatus=False)
         Evento.objects.filter(id=pk).update(regitroQuorum=False, quorum=0.0)
         return Response({"detail": "Se ha reiniciado el quorum del evento"}, status=status.HTTP_200_OK)
     else:

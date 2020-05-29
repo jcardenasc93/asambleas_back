@@ -27,11 +27,13 @@ class Evento(models.Model):
 
 class Pregunta(models.Model):
     enunciado = models.CharField(max_length=500, null=False)
-    activa = models.BooleanField(default=True)
+    activa = models.BooleanField(default=False)
     evento = models.ForeignKey(
         Evento, on_delete=models.CASCADE, related_name='evento')
     bloquea_mora = models.BooleanField(default=False)
     numeracion = models.BooleanField(default=False)
+    timer = models.IntegerField()
+    time_final = models.TimeField(null=True)
 
 
 class PreguntaAbierta(Pregunta):
