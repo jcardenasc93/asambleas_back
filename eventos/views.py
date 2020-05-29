@@ -273,3 +273,15 @@ def regitroQuorum(request, pk=None):
         return Response({"detail": "El registro de asistencia del asambleista es correcto"}, status=status.HTTP_200_OK)
     else:
         return Response({"detail": "El usuario no esta habilitado para registrar quorum"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def reinicioQuorum(request, pk=None):
+    if request.user.is_staff:
+        usuarios = Asambleista.objects.filter(evento=pk).update(quorumStatus=False)
+        Evento.objects.filter(id=pk).update(regitroQuorum=False, quorum=0.0)
+        return Response({"detail": "Se ha reiniciado el quorum del evento"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)

@@ -63,4 +63,5 @@ urlpatterns = [
     ### QUORUM ###
     path('api/v1/quorum_status/<int:pk>', views.solicitaQuorum, name='solicita_quorum'),
     path('api/v1/quorum_asambleista/<int:pk>', views.regitroQuorum, name='quorum_asambleista'),
+    path('api/v1/quorum_reset/<int:pk>', views.reinicioQuorum, name='quorum_reset')
 ]
