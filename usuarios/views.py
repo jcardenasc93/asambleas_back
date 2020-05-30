@@ -69,12 +69,12 @@ def createUser(request, pk=None):
                     asambleista = ''
                     username = random_username()
 
-                    if mora == 'si':
+                    if mora.strip() == 'si':
                         mora = True
                     else:
                         mora = False
 
-                    asambleista = Asambleista(inmueble=inmueble, first_name=nombres,
+                    asambleista = Asambleista(inmueble=inmueble, nombre_completo=nombres,
                                               documento=documento, email=correo, celular=celular, coeficiente=float(
                                                   coeficiente),
                                               mora=mora, username=username, evento_id=pk)
