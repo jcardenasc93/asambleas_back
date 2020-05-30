@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from datetime import datetime, time
 
 from .serializers import RespAbiertaSerializer, RespDecimalSerializer, RespOpMultipleSerializer
 from .models import RespuestaAbierta, RespuestaDecimal, RespuestaOpMultiple
@@ -32,9 +33,13 @@ class RespAbiertaView(viewsets.ModelViewSet):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
         respuesta_repetida = RespuestaAbierta.objects.filter(pregunta=self.request.data['pregunta']).filter(
             asambleista=asambleista.id)
-        print(len(respuesta_repetida))
         if len(respuesta_repetida) == 0:
-            return serializer.save(asambleista=asambleista)
+            pregunta = get_object_or_404(
+                PreguntaAbierta, id=self.request.data['pregunta'])
+            if datetime.now().time() <= pregunta.time_final:
+                return serializer.save(asambleista=asambleista)
+            else:
+                return None
         else:
             return None
 
@@ -51,7 +56,7 @@ class RespAbiertaView(viewsets.ModelViewSet):
                     headers = self.get_success_headers(serializer.data)
                     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
                 else:
-                    return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'El usuario no puede contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 asambleista = get_object_or_404(
                     Asambleista, id=self.request.user.id)
@@ -89,7 +94,12 @@ class RespDecimalView(viewsets.ModelViewSet):
             asambleista=asambleista.id)
         print(len(respuesta_repetida))
         if len(respuesta_repetida) == 0:
-            return serializer.save(asambleista=asambleista)
+            pregunta = get_object_or_404(
+                PreguntaDecimal, id=self.request.data['pregunta'])
+            if datetime.now().time() <= pregunta.time_final:
+                return serializer.save(asambleista=asambleista)
+            else:
+                return None
         else:
             return None
 
@@ -108,7 +118,7 @@ class RespDecimalView(viewsets.ModelViewSet):
                         headers = self.get_success_headers(serializer.data)
                         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
                     else:
-                        return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'detail': 'El usuario no puede contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response({'detail': 'El valor no esta entre los rangos min y max permitidos'}, status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -147,20 +157,25 @@ class RespOpMultipleView(viewsets.ModelViewSet):
         print(respuesta_repetida)
 
         if len(respuesta_repetida) == 0:
-            if multipleResp:
-                opciones = self.request.data['opciones']
-                if strictMax:
-                    if len(opciones) != maxResps:
-                        return 1
+            pregunta = get_object_or_404(
+                PreguntaMultiple, id=self.request.data['pregunta'])
+            if datetime.now().time() <= pregunta.time_final:
+                if multipleResp:
+                    opciones = self.request.data['opciones']
+                    if strictMax:
+                        if len(opciones) != maxResps:
+                            return 1
+                        else:
+                            return serializer.save(asambleista=asambleista)
                     else:
-                        return serializer.save(asambleista=asambleista)
+                        if len(opciones) > maxResps:
+                            return 1
+                        else:
+                            return serializer.save(asambleista=asambleista)
                 else:
-                    if len(opciones) > maxResps:
-                        return 1
-                    else:
-                        return serializer.save(asambleista=asambleista)
+                    return serializer.save(asambleista=asambleista)
             else:
-                return serializer.save(asambleista=asambleista)
+                return None
         else:
             return None
 
@@ -188,7 +203,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                     else:
                         return Response({'detail': 'Cantidad de opciones seleccionadas no permitida'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'El usuario no puede contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 asambleista = get_object_or_404(
                     Asambleista, id=self.request.user.id)
