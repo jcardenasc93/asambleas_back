@@ -24,12 +24,14 @@ def random_password():
         password += random.choice(chars)
     return password
 
+
 def random_username():
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+}{"
     username = ""
     for i in range(10):
         username += random.choice(chars)
     return username
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -66,7 +68,7 @@ def createUser(request, pk=None):
                         ',')
                     asambleista = ''
                     username = random_username()
-                    
+
                     if mora == 'si':
                         mora = True
                     else:
@@ -76,7 +78,7 @@ def createUser(request, pk=None):
                                               documento=documento, email=correo, celular=celular, coeficiente=float(
                                                   coeficiente),
                                               mora=mora, username=username, evento_id=pk)
-                    asambleista.set_password(random_password())                    
+                    asambleista.set_password(random_password())
 
                     try:
                         asambleista.save()
@@ -134,14 +136,10 @@ class ListAsambleistasView(viewsets.ModelViewSet):
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def retrieve(self, request, evento=None):
-        # check if request.user is staff
-        if self.request.user.is_staff:
-            asambleistas = Asambleista.objects.filter(evento=evento)
-            asambleistas_serializer = AsambleistaSerializer(
-                asambleistas, many=True)
-            return Response({'asambleistas': asambleistas_serializer.data}, status=status.HTTP_200_OK)
-        else:
-            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+        asambleistas = Asambleista.objects.filter(evento=evento)
+        asambleistas_serializer = AsambleistaSerializer(
+            asambleistas, many=True)
+        return Response({'asambleistas': asambleistas_serializer.data}, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None, **kwargs):
         asambleista = get_object_or_404(Asambleista, id=pk)
@@ -243,7 +241,7 @@ class ApoderadosView(viewsets.ModelViewSet):
             return Response({'apoderados': apoderados_serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
-    
+
     def retrieveByAsam(self, request, pk=None):
         # check if request.user is staff
         if self.request.user.is_staff:
