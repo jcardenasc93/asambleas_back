@@ -75,6 +75,16 @@ class RespAbiertaView(viewsets.ModelViewSet):
         else:
             return Response({'detail': 'La pregunta no se encuentra activa'}, status=status.HTTP_400_BAD_REQUEST)
 
+    def destroy(self, request, pk):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            respuestas = RespuestaAbierta.objects.filter(pregunta=pk)
+            for respuesta in respuestas:
+                self.perform_destroy(respuesta)
+            return Response({'detail': 'Respuestas eliminadas'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class RespDecimalView(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -138,6 +148,16 @@ class RespDecimalView(viewsets.ModelViewSet):
 
         else:
             return Response({'detail': 'La pregunta no se encuentra activa'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            respuestas = RespuestaDecimal.objects.filter(pregunta=pk)
+            for respuesta in respuestas:
+                self.perform_destroy(respuesta)
+            return Response({'detail': 'Respuestas eliminadas'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class RespOpMultipleView(viewsets.ModelViewSet):
@@ -221,3 +241,13 @@ class RespOpMultipleView(viewsets.ModelViewSet):
 
         else:
             return Response({'detail': 'La pregunta no se encuentra activa'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            respuestas = RespuestaOpMultiple.objects.filter(pregunta=pk)
+            for respuesta in respuestas:                
+                self.perform_destroy(respuesta)
+            return Response({'detail': 'Respuestas eliminadas'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
