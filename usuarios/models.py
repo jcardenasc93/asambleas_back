@@ -25,7 +25,7 @@ class Asambleista(Usuario):
         Evento, on_delete=models.CASCADE, blank=True, null=True)
     tiene_representante = models.BooleanField(default=False)
     quorumStatus = models.BooleanField(default=False)
-    nombre_completo = models.CharField(max_length=200, null=True)
+    nombre_completo = models.CharField(max_length=200)
 
     class Meta:
         verbose_name = 'asambleista'
@@ -36,7 +36,11 @@ class Asambleista(Usuario):
         if self.is_staff:
             return self.username
         else:
-            return self.inmueble + ' - ' + self.nombre_completo
+            try:
+                return self.inmueble + ' - ' + self.nombre_completo
+            except:
+                return self.inmueble + ' - ' + self.first_name
+        
 
 
 doc_poder_ext = ['pdf', 'PDF', 'JPEG', 'JPG', 'PNG', 'png', 'jpg', 'jpeg']
