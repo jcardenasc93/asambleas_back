@@ -36,7 +36,7 @@ class Asambleista(Usuario):
         if self.is_staff:
             return self.username
         else:
-            return self.inmueble + ' - ' + self.first_name
+            return self.inmueble + ' - ' + self.nombre_completo
 
 
 doc_poder_ext = ['pdf', 'PDF', 'JPEG', 'JPG', 'PNG', 'png', 'jpg', 'jpeg']
