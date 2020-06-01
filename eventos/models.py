@@ -51,7 +51,7 @@ class PreguntaDecimal(Pregunta):
 
 class PreguntaMultiple(Pregunta):
     puntajeCoeficiente = models.BooleanField(default=False)
-    esMultipleResp = models.BooleanField(default=False)
+    esMultipleResp = models.BooleanField(default=True)
     respuestasPermitidas = models.IntegerField(blank=False, default=1)
     strictMax = models.BooleanField(default=False)
     opPresentacion = models.IntegerField()
