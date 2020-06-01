@@ -11,7 +11,7 @@ from eventos.models import Evento
 class Usuario(AbstractUser):
     first_name = models.CharField(max_length=200, null=True)
     def __str__(self):
-        return self.username + ' - ' + self.first_name
+        return self.username
 
 
 class Asambleista(Usuario):
