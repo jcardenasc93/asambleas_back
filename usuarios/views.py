@@ -69,14 +69,13 @@ def createUser(request, pk=None):
                     asambleista = ''
                     username = random_username()
 
-                    if mora.strip() == 'si':
+                    if mora.lower().strip() == 'al dia':
                         mora = True
                     else:
                         mora = False
 
                     asambleista = Asambleista(inmueble=inmueble, nombre_completo=nombres,
-                                              documento=documento, email=correo, celular=celular, coeficiente=float(
-                                                  coeficiente),
+                                              documento=documento, email=correo, celular=celular, coeficiente=coeficiente,
                                               mora=mora, username=username, evento_id=pk)
                     asambleista.set_password(random_password())
 
@@ -127,8 +126,7 @@ class ListAsambleistasView(viewsets.ModelViewSet):
     def retrieveAsambleista(self, request, pk=None):
         # check if request.user is staff
         if self.request.user.is_staff:
-            asambleista = get_object_or_404(Asambleista, id=pk)
-            print(asambleista)
+            asambleista = get_object_or_404(Asambleista, id=pk)            
             asambleista_serializer = AsambleistaSerializer(
                 asambleista)
             return Response({'asambleista': asambleista_serializer.data}, status=status.HTTP_200_OK)
