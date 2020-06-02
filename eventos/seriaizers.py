@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple, Documentos
+from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple,\
+    Documentos, Quorum
 
 
 class EventoSerializer(serializers.ModelSerializer):
@@ -42,4 +43,11 @@ class DocumentoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Documentos
+        fields = '__all__'
+
+
+class QuorumSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Quorum
         fields = '__all__'

@@ -16,7 +16,7 @@ class Evento(models.Model):
     documento_excel = models.FileField(
         upload_to='docs_excel/', validators=[FileExtensionValidator(allowed_extensions=excel_validator)], null=True)
     regitroQuorum = models.BooleanField(default=False)
-    quorum = models.DecimalField(default=0.0, max_digits=25, decimal_places=3)
+    quorum = models.DecimalField(default=0.0, max_digits=30, decimal_places=20)
     logo_asamblea = models.ImageField(
         verbose_name='logo', null=True, upload_to='logos')
     link_conferencia = models.URLField(
@@ -81,3 +81,13 @@ class Documentos(models.Model):
     nombre = models.CharField(verbose_name='nombre_archivo', max_length=255)
     documento = models.FileField(verbose_name='file', upload_to='docs_evento', validators=[
                                  FileExtensionValidator(allowed_extensions=doc_validator)])
+
+
+class Quorum(models.Model):
+    evento = models.ForeignKey(
+        Evento, on_delete=models.CASCADE, related_name='evento_quorum')
+    coeficiente_total = models.DecimalField(max_digits=30, decimal_places=20)
+    coeficiente_registrado = models.DecimalField(
+        max_digits=30, decimal_places=20)
+    date_time = models.DateTimeField(
+        auto_now_add=True, verbose_name='fecha_hora_registro')

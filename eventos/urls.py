@@ -74,5 +74,13 @@ urlpatterns = [
     path('api/v1/eventos/documento_nuevo',
          views.DocumentosView.as_view({'post': 'create'}), name='crea_doc'),
     path('api/v1/eventos/eliminar_documento/<int:pk>',
-         views.DocumentosView.as_view({'delete': 'destroy'}), name='elimina_doc')
+         views.DocumentosView.as_view({'delete': 'destroy'}), name='elimina_doc'),
+
+    #### QUORUM ####
+    path('api/v1/eventos/quorum/<int:pk>',
+         views.QuorumView.as_view({'get': 'retrieveByEvent'}), name='list_quorum'),
+    path('api/v1/eventos/quorum_nuevo',
+         views.QuorumView.as_view({'post': 'create'}), name='crea_quorum'),
+    path('api/v1/eventos/eliminar_quorum/<int:pk>',
+         views.QuorumView.as_view({'delete': 'destroy'}), name='elimina_quorum')
 ]

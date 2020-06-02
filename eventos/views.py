@@ -10,8 +10,9 @@ from datetime import datetime, timedelta
 
 
 from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, \
-    OpcionMultipleSerializer, DocumentoSerializer
-from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple, Documentos
+    OpcionMultipleSerializer, DocumentoSerializer, QuorumSerializer
+from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple,\
+    Documentos, Quorum
 from usuarios.models import Asambleista
 
 
@@ -279,7 +280,7 @@ class DocumentosView(viewsets.ModelViewSet):
     serializer_class = DocumentoSerializer
 
     def retrieveEvent(self, request, pk=None):
-        documentos = Documentos.objects.filter(evento=pk)        
+        documentos = Documentos.objects.filter(evento=pk)
         serializer_data = DocumentoSerializer(documentos, many=True)
         return Response({'documentos': serializer_data.data}, status=status.HTTP_200_OK)
 
@@ -290,9 +291,57 @@ class DocumentosView(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
+            return Response({serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def destroy(self, request, pk):
+        documento = get_object_or_404(Documentos, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            self.perform_destroy(documento)
+            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class QuorumView(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = QuorumSerializer
+
+    def retrieveByEvent(self, request, pk=None):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            quorums = Quorum.objects.filter(evento=pk)            
+            serializer = QuorumSerializer(quorums, many=True)
+            return Response({'quorums': serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def create(self, request, *args, **kwargs):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            total_quorum = 0
+            evento = get_object_or_404(Evento, id=request.data['evento'])
+            asambleistas = Asambleista.objects.filter(
+                evento=request.data['evento'])
+            for asambleista in asambleistas:
+                total_quorum += asambleista.coeficiente
+            request.data['coeficiente_total'] = total_quorum
+            request.data['coeficiente_registrado'] = evento.quorum
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def retrieveEvent(self, request, pk=None):
+        documentos = Documentos.objects.filter(evento=pk)
+        serializer_data = DocumentoSerializer(documentos, many=True)
+        return Response({'documentos': serializer_data.data}, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk):
         documento = get_object_or_404(Documentos, id=pk)
