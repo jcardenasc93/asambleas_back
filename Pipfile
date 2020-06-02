@@ -20,6 +20,7 @@ django-cors-headers = "*"
 xlrd = "*"
 boto3 = "*"
 django-storages = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"
