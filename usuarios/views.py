@@ -126,7 +126,7 @@ class ListAsambleistasView(viewsets.ModelViewSet):
     def retrieveAsambleista(self, request, pk=None):
         # check if request.user is staff
         if self.request.user.is_staff:
-            asambleista = get_object_or_404(Asambleista, id=pk)            
+            asambleista = get_object_or_404(Asambleista, id=pk)
             asambleista_serializer = AsambleistaSerializer(
                 asambleista)
             return Response({'asambleista': asambleista_serializer.data}, status=status.HTTP_200_OK)
@@ -248,6 +248,11 @@ class ApoderadosView(viewsets.ModelViewSet):
             return Response({'apoderados': apoderados_serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def retrieveByAsambleista(self, request, pk=None):
+        apoderado = get_object_or_404(Apoderado, representa_a=self.request.user.id)        
+        apoderado_serializer = ApoderadosSerializer(apoderado)
+        return Response({'apoderado': apoderado_serializer.data}, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk):
         apoderado = get_object_or_404(Apoderado, id=pk)
