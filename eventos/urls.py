@@ -73,4 +73,6 @@ urlpatterns = [
          views.DocumentosView.as_view({'get': 'retrieveEvent'}), name='list_docs'),
     path('api/v1/eventos/documento_nuevo',
          views.DocumentosView.as_view({'post': 'create'}), name='crea_doc'),
+    path('api/v1/eventos/eliminar_documento/<int:pk>',
+         views.DocumentosView.as_view({'delete': 'destroy'}), name='elimina_doc')
 ]
