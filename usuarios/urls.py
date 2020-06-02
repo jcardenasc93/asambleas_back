@@ -43,4 +43,8 @@ urlpatterns = [
     path('api/v1/asambleistas/caclulo_coeficientes/<int:pk>',
          views.actualizaCoeficientes, name='calculo_coeficientes'),
 
+    ### ENVIAR CORREOS ###
+    path('api/v1/asambleistas/reenviar_correo/<int:pk>',
+         views.ListAsambleistasView.as_view({'get': 'resendMail'}), name='reenvia_correo'),
+
 ]

@@ -29,4 +29,4 @@ class RespuestaOpMultiple(Respuesta):
     opciones = models.ManyToManyField(
         OpcionesMultiple, related_name='opcion_multiple')
     coeficientes = models.DecimalField(
-        max_digits=10, decimal_places=3, blank=True, null=True)
+        max_digits=30, decimal_places=20, blank=True, null=True)

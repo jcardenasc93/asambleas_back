@@ -11,6 +11,12 @@ import os
 import random
 import boto3
 
+import smtplib
+import ssl
+import email
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from .models import Asambleista, Apoderado
 from .serializers import AsambleistaSerializer, ApoderadosSerializer
 from eventos.models import Evento
@@ -31,6 +37,45 @@ def random_username():
     for i in range(10):
         username += random.choice(chars)
     return username
+
+
+def sendMail(body, asambleista, password):
+    try:
+        email_server = smtplib.SMTP(os.environ.get(
+            'EMAIL_SMTP', None), os.environ.get('EMAIL_PORT', None))
+        email_server.ehlo()
+        email_server.starttls()
+        email_server.ehlo()
+        email_server.login(os.environ.get('EMAIL_ACCOUNT', None),
+                           os.environ.get('EMAIL_PASS', None))
+
+        body_mail = """ 
+        <html>\
+            <body>
+                <p>%s</p>                
+                <p>Ingresa a la <a href="%s"> asamblea</a> con las siguientes credenciales</p>                
+                <span style="font-weight: bold;">Usuario: </span>%s
+                <br>
+                <span style="font-weight: bold;">Contraseña: </span>%s
+                <br>
+                <p>Cordialmente el equio de eOpinion</p>
+            </body>
+        </html>""" % (body, os.environ.get('ASAMBLEA_URL', None), asambleista.username, password)
+
+        msg = MIMEText(body_mail, 'html')
+        msg['Subject'] = 'Bienvenido a eOpinion. Estas son tus credenciales de acceso'
+
+        # Envia correo
+        email_server.sendmail(os.environ.get('EMAIL_ACCOUNT', None), str(
+            asambleista.email), msg.as_string().encode("ascii", errors="ignore"))
+
+        Asambleista.objects.filter(
+            id=asambleista.id).update(correo_enviado=True)
+        return True
+
+    except Exception as e:
+        print(e)
+        return False
 
 
 @api_view(['GET'])
@@ -77,18 +122,23 @@ def createUser(request, pk=None):
                     asambleista = Asambleista(inmueble=inmueble, nombre_completo=nombres,
                                               documento=documento, email=correo, celular=celular, coeficiente=coeficiente,
                                               mora=mora, username=username, evento_id=pk)
-                    asambleista.set_password(random_password())
+                    password = random_password()
+                    asambleista.set_password(password)
 
                     try:
+                        correosFalla = []
                         asambleista.save()
-                        # TODO: Enviar correo
+                        validaEnvio = sendMail(
+                            evento.bodyCorreo, asambleista, password)
+                        if validaEnvio == False:
+                            correosFalla.append(asambleista.email)
 
                     except:
                         usuarios_no_creados.append(inmueble)
                         pass
 
-            if len(usuarios_no_creados) > 0:
-                return Response({'usuarios_no_creados': usuarios_no_creados},
+            if (len(usuarios_no_creados) > 0) or (len(correosFalla) > 0):
+                return Response({'usuarios_no_creados': usuarios_no_creados, 'correos_fallidos': correosFalla},
                                 status=status.HTTP_206_PARTIAL_CONTENT)
             else:
                 return Response({'detail': 'Todos los usuarios se crearon correctamente'},
@@ -112,14 +162,25 @@ class ListAsambleistasView(viewsets.ModelViewSet):
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
+    def perform_create(self, serializer):
+        eventoBody = get_object_or_404(
+            Evento, id=self.request.data['evento']).bodyCorreo
+        password = self.request.data['password']
+        asambleista = serializer.save()
+        validaCorreo = sendMail(eventoBody, asambleista, password)
+        return validaCorreo
+
     def create(self, request, *args, **kwargs):
         # check if request.user is staff
         if self.request.user.is_staff:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
+            creaUser = self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            if createUser:
+                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            else:
+                return Response({'detail': 'Error al enviar correo al usuario'}, status=status.HTTP_206_PARTIAL_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -150,6 +211,23 @@ class ListAsambleistasView(viewsets.ModelViewSet):
             self.perform_update(serializer)
 
             return Response(serializer.data)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def resendMail(self, request, pk=None, **kwargs):
+        asambleista = get_object_or_404(Asambleista, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            password = random_password()
+            asambleista.set_password(password)
+            asambleista.save()
+            evento = get_object_or_404(Evento, id=asambleista.evento.id)
+            validaCorreo = sendMail(evento.bodyCorreo, asambleista, password)
+            if validaCorreo:
+                serializer = AsambleistaSerializer(asambleista)
+                return Response(serializer.data)
+            else:
+                return Response({'detail': 'No fue posible enviar el correo con las credenciales de acceso'}, status=status.HTTP_206_PARTIAL_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -250,7 +328,8 @@ class ApoderadosView(viewsets.ModelViewSet):
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def retrieveByAsambleista(self, request, pk=None):
-        apoderado = get_object_or_404(Apoderado, representa_a=self.request.user.id)        
+        apoderado = get_object_or_404(
+            Apoderado, representa_a=self.request.user.id)
         apoderado_serializer = ApoderadosSerializer(apoderado)
         return Response({'apoderado': apoderado_serializer.data}, status=status.HTTP_200_OK)
 

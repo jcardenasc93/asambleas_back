@@ -26,6 +26,7 @@ class Asambleista(Usuario):
     tiene_representante = models.BooleanField(default=False)
     quorumStatus = models.BooleanField(default=False)
     nombre_completo = models.CharField(max_length=200)
+    correo_enviado = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'asambleista'
