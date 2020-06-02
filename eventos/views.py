@@ -9,8 +9,9 @@ from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
 
 
-from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, OpcionMultipleSerializer
-from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple
+from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, \
+    OpcionMultipleSerializer, DocumentoSerializer
+from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple, Documentos
 from usuarios.models import Asambleista
 
 
@@ -268,6 +269,37 @@ class ListPregMultipleView(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             self.perform_destroy(pregunta)
             return Response({'detail': 'Pregunta eliminada'}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class DocumentosView(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = DocumentoSerializer
+
+    def retrieveEvent(self, request, pk=None):
+        documentos = Documentos.objects.filter(evento=pk)        
+        serializer_data = DocumentoSerializer(documentos, many=True)
+        return Response({'documentos': serializer_data.data}, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def destroy(self, request, pk):
+        documento = get_object_or_404(Documentos, id=pk)
+        # check if request.user is staff
+        if self.request.user.is_staff:
+            self.perform_destroy(documento)
+            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 

@@ -61,7 +61,16 @@ urlpatterns = [
 
 
     ### QUORUM ###
-    path('api/v1/quorum_status/<int:pk>', views.solicitaQuorum, name='solicita_quorum'),
-    path('api/v1/quorum_asambleista/<int:pk>', views.regitroQuorum, name='quorum_asambleista'),
-    path('api/v1/quorum_reset/<int:pk>', views.reinicioQuorum, name='quorum_reset')
+    path('api/v1/quorum_status/<int:pk>',
+         views.solicitaQuorum, name='solicita_quorum'),
+    path('api/v1/quorum_asambleista/<int:pk>',
+         views.regitroQuorum, name='quorum_asambleista'),
+    path('api/v1/quorum_reset/<int:pk>',
+         views.reinicioQuorum, name='quorum_reset'),
+
+    #### DOCUMENTOS ####
+    path('api/v1/eventos/documentos/<int:pk>',
+         views.DocumentosView.as_view({'get': 'retrieveEvent'}), name='list_docs'),
+    path('api/v1/eventos/documento_nuevo',
+         views.DocumentosView.as_view({'post': 'create'}), name='crea_doc'),
 ]

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 import os
+
 # Create your models here.
 
 
@@ -16,8 +17,10 @@ class Evento(models.Model):
         upload_to='docs_excel/', validators=[FileExtensionValidator(allowed_extensions=excel_validator)], null=True)
     regitroQuorum = models.BooleanField(default=False)
     quorum = models.DecimalField(default=0.0, max_digits=25, decimal_places=3)
-    logo_asamblea = models.ImageField(verbose_name='logo', null=True, upload_to='logos')
-    link_conferencia = models.URLField(verbose_name='link_conferencia', null=True)
+    logo_asamblea = models.ImageField(
+        verbose_name='logo', null=True, upload_to='logos')
+    link_conferencia = models.URLField(
+        verbose_name='link_conferencia', null=True)
 
     @property
     def filename(self):
@@ -66,3 +69,15 @@ class OpcionesMultiple(models.Model):
     opcion = models.CharField(max_length=500)
     preguntaSeleccionMultiple = models.ForeignKey(
         PreguntaMultiple, on_delete=models.CASCADE, related_name='opciones')
+
+
+doc_validator = ['pdf', 'PDF', 'jpeg', 'JPEG',
+                 'jpg', 'JPG', 'mp4', 'MP4', 'mov', 'MOV']
+
+
+class Documentos(models.Model):
+    evento = models.ForeignKey(
+        Evento, on_delete=models.CASCADE, related_name='evento_docs')
+    nombre = models.CharField(verbose_name='nombre_archivo', max_length=255)
+    documento = models.FileField(verbose_name='file', upload_to='docs_evento', validators=[
+                                 FileExtensionValidator(allowed_extensions=doc_validator)])
