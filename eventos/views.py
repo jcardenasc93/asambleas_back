@@ -344,11 +344,11 @@ class QuorumView(viewsets.ModelViewSet):
         return Response({'documentos': serializer_data.data}, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk):
-        documento = get_object_or_404(Documentos, id=pk)
+        quorum = get_object_or_404(Quorum, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
-            self.perform_destroy(documento)
-            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)
+            self.perform_destroy(quorum)
+            return Response({'detail': 'Quorum eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
