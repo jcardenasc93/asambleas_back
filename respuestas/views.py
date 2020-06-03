@@ -208,20 +208,45 @@ class RespOpMultipleView(viewsets.ModelViewSet):
         if pregunta.activa:
             if pregunta.puntajeCoeficiente:
                 request.data['coeficientes'] = asambleista.coeficiente
+                if pregunta.bloquea_mora == False:
+                    request.data['coeficientes'] += asambleista.coeficienteTotal
+                else:
+                    if asambleista.coeficientePoderesDia != Decimal(0.0):
+                        # Tiene poderes asociados
+                        request.data['coeficientes'] += asambleista.coeficientePoderesDia
+                        if asambleista.mora:
+                            request.data['coeficientes'] -= asambleista.coeficiente
+                    else:
+                        # No tiene poderes asociados
+                        if asambleista.mora:
+                            return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 request.data['coeficientes'] = Decimal(1.000)
-            if pregunta.bloquea_mora == False:
-                request.data['coeficientes'] += asambleista.coeficienteTotal
-            else:
-                if asambleista.coeficientePoderesDia != Decimal(0.0):
-                    # Tiene poderes asociados
-                    request.data['coeficientes'] += asambleista.coeficientePoderesDia
-                    if asambleista.mora:
-                        request.data['coeficientes'] -= asambleista.coeficiente
+                if pregunta.bloquea_mora == False:
+                    # Obtiene los poderes asociados al asambleista
+                    poderes = Apoderado.objects.filter(representado_por=asambleista.id).filter(validado=True)
+                    cantidad = Decimal(float(len(poderes)))
+                    request.data['coeficientes'] += cantidad
                 else:
-                    # No tiene poderes asociados
-                    if asambleista.mora:
-                        return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+                    if asambleista.coeficientePoderesDia != Decimal(0.0):
+                        # Tiene poderes asociados
+                        poderes = Apoderado.objects.filter(representado_por=asambleista.id).filter(validado=True)
+                        usuariosAlDia = []
+                        for poder in poderes:
+                            representado = get_object_or_404(Asambleista, id=poder.representa_a.id)
+                            if representado.mora == False:
+                                # Valida que el usuario este AL DIA
+                                usuariosAlDia.append(representado)
+                        cantidad = Decimal(float(len(usuariosAlDia)))
+                        request.data['coeficientes'] += cantidad
+
+                        if asambleista.mora:
+                            request.data['coeficientes'] -= Decimal(1.000)
+                    else:
+                        # No tiene poderes asociados
+                        if asambleista.mora:
+                            return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+            
 
             maxResps = pregunta.respuestasPermitidas
             serializer = self.get_serializer(data=request.data)

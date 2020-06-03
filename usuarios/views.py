@@ -328,7 +328,7 @@ class ApoderadosView(viewsets.ModelViewSet):
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    def retrieveByAsambleista(self, request, pk=None):
+    def retrieveByAsambleista(self, request):
         apoderado = get_object_or_404(
             Apoderado, representa_a=self.request.user.id)
         apoderado_serializer = ApoderadosSerializer(apoderado)
