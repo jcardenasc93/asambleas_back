@@ -18,6 +18,10 @@ class Asambleista(Usuario):
     inmueble = models.CharField(max_length=500, blank=True, null=True)
     coeficiente = models.DecimalField(
         max_digits=30, decimal_places=20, blank=True, null=True)
+    coeficientePoderesDia = models.DecimalField(
+        max_digits=30, decimal_places=20, default=0.0)
+    coeficienteTotal = models.DecimalField(
+        max_digits=30, decimal_places=20, default=0.0)
     documento = models.CharField(max_length=20, blank=True, null=True)
     celular = models.CharField(blank=True, null=True, max_length=50)
     mora = models.BooleanField(default=False)
@@ -49,7 +53,7 @@ doc_poder_ext = ['pdf', 'PDF', 'JPEG', 'JPG', 'PNG', 'png', 'jpg', 'jpeg']
 
 class Apoderado(models.Model):
     evento = models.ForeignKey(
-        Evento, on_delete=models.CASCADE)
+        Evento, on_delete=models.CASCADE, related_name='poder_evento', null=True)
     representa_a = models.ForeignKey(
         Asambleista, on_delete=models.CASCADE, related_name='representa_a', null=True, blank=True)
     representado_por = models.ForeignKey(

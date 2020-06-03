@@ -10,6 +10,7 @@ import xlrd
 import os
 import random
 import boto3
+from decimal import Decimal
 
 import smtplib
 import ssl
@@ -264,7 +265,7 @@ class ApoderadosView(viewsets.ModelViewSet):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
         serializer.save(representado_por=asambleista)
 
-    def create(self, request, pk=None, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         apoderado = self.perform_create(serializer)
@@ -281,7 +282,7 @@ class ApoderadosView(viewsets.ModelViewSet):
         # check if request.user is staff
         if self.request.user.is_staff:
             if representa_a:
-                if len(Apoderado.objects.filter(representa_a=representa_a).filter(validado=True)) == 0:
+                if len(Apoderado.objects.filter(representa_a=representa_a).filter(validado=True)) == 0:                    
                     partial = kwargs.pop('partial', False)
                     serializer = ApoderadosSerializer(
                         apoderado, data=request.data, partial=partial)
@@ -350,7 +351,9 @@ def actualizaCoeficientes(request, pk=None):
         asambleista = Asambleista.objects.get(id=pk)
         apoderados_validos = Apoderado.objects.filter(
             representado_por=pk).filter(validado=True)
-        total_coeficiente = asambleista.coeficiente
+        total_coeficiente = asambleista.coeficienteTotal
+        total_coeficiente_aldia = asambleista.coeficientePoderesDia
+        
         if len(apoderados_validos) > 0:
             for apoderado in apoderados_validos:
                 if apoderado.sumado == False:
@@ -358,14 +361,26 @@ def actualizaCoeficientes(request, pk=None):
                     Apoderado.objects.filter(
                         id=apoderado.id).update(sumado=True)
 
+                    # Validacion de usuarios en mora
+                    if apoderado.representa_a.mora == False:
+                        total_coeficiente_aldia += apoderado.representa_a.coeficiente
+                        Asambleista.objects.filter(
+                            id=apoderado.representado_por.id).update(coeficientePoderesDia=total_coeficiente_aldia)
+
+        # Desaocia el poder y resta coeficiente
         apoderados_no_validos = Apoderado.objects.filter(
             representado_por=pk).filter(validado=False).filter(sumado=True)
-        print(apoderados_no_validos)
+
         if len(apoderados_no_validos) > 0:
             for apoderado in apoderados_no_validos:
                 total_coeficiente -= apoderado.representa_a.coeficiente
                 Apoderado.objects.filter(id=apoderado.id).update(
                     sumado=False, representa_a=None)
+                # Resta coeficientes de usuarios al dia
+                if apoderado.representa_a.mora == False:
+                    total_coeficiente_aldia -= apoderado.representa_a.coeficiente
+                    Asambleista.objects.filter(
+                        id=apoderado.representado_por.id).update(coeficientePoderesDia=total_coeficiente_aldia)
 
-        Asambleista.objects.filter(id=pk).update(coeficiente=total_coeficiente)
-        return Response({"nuevo_coeficiente": total_coeficiente})
+        Asambleista.objects.filter(id=pk).update(coeficienteTotal=total_coeficiente)
+        return Response({"coeficiente_total": total_coeficiente, "coeficiente_al_dia": total_coeficiente_aldia})
