@@ -11,8 +11,9 @@ from datetime import datetime, time
 from .serializers import RespAbiertaSerializer, RespDecimalSerializer, RespOpMultipleSerializer
 from .models import RespuestaAbierta, RespuestaDecimal, RespuestaOpMultiple
 
-from usuarios.models import Asambleista
+from usuarios.models import Asambleista, Apoderado
 from eventos.models import PreguntaAbierta, PreguntaDecimal, PreguntaMultiple
+from decimal import Decimal
 
 
 # Create your views here.
@@ -246,8 +247,31 @@ class RespOpMultipleView(viewsets.ModelViewSet):
         # check if request.user is staff
         if self.request.user.is_staff:
             respuestas = RespuestaOpMultiple.objects.filter(pregunta=pk)
-            for respuesta in respuestas:                
+            for respuesta in respuestas:
                 self.perform_destroy(respuesta)
             return Response({'detail': 'Respuestas eliminadas'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def sinVotos(request, pk=None):
+    if request.user.is_staff:
+        pregunta = get_object_or_404(PreguntaMultiple, id=pk)
+        asambleistas = Asambleista.objects.filter(evento=pregunta.evento.id)
+        sin_voto = []
+        coeficientes = Decimal(0.0)
+        for asambleista in asambleistas:
+            respuesta = RespuestaOpMultiple.objects.filter(
+                pregunta=pk).filter(asambleista=asambleista.id)
+            poderes = Apoderado.objects.filter(representa_a=asambleista.id)            
+            if (len(respuesta) == 0) and (len(poderes) == 0):
+                sin_voto.append(asambleista.id)
+                print(type(asambleista.coeficiente))
+                coeficientes += asambleista.coeficiente
+
+        return Response({'sin_votar': sin_voto, 'conteo': len(sin_voto), 'coeficinete_sin_votar': coeficientes}, status=status.HTTP_200_OK)
+
+    else:
+        return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)

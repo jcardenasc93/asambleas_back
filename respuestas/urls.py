@@ -29,6 +29,8 @@ urlpatterns = [
     path('api/v1/respuesta/op_multiple/nuevo/',
          views.RespOpMultipleView.as_view({'post': 'create'}), name='crea_resp_multiple'),
     path('api/v1/respuesta/op_multiple/reset/<int:pk>',
-         views.RespOpMultipleView.as_view({'delete': 'destroy'}), name='delete_resp_multiple')
+         views.RespOpMultipleView.as_view({'delete': 'destroy'}), name='delete_resp_multiple'),
+    path('api/v1/respuesta/op_multiple/sin_votar/<int:pk>',
+         views.sinVotos, name='lista_sin_votos')
 
 ]
