@@ -17,6 +17,7 @@ class Evento(models.Model):
         upload_to='docs_excel/', validators=[FileExtensionValidator(allowed_extensions=excel_validator)], null=True)
     regitroQuorum = models.BooleanField(default=False)
     quorum = models.DecimalField(default=0.0, max_digits=30, decimal_places=20)
+    cantidadQuorum = models.IntegerField(default=0)
     logo_asamblea = models.ImageField(
         verbose_name='logo', null=True, upload_to='logos')
     link_conferencia = models.URLField(
@@ -91,3 +92,4 @@ class Quorum(models.Model):
         max_digits=30, decimal_places=20)
     date_time = models.DateTimeField(
         auto_now_add=True, verbose_name='fecha_hora_registro')
+    cantidadPersonas = models.IntegerField(default=0)

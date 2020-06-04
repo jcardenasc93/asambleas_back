@@ -13,7 +13,7 @@ from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSeri
     OpcionMultipleSerializer, DocumentoSerializer, QuorumSerializer
 from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple,\
     Documentos, Quorum
-from usuarios.models import Asambleista
+from usuarios.models import Asambleista, Apoderado
 
 
 class ListEventosView(viewsets.ModelViewSet):
@@ -313,7 +313,7 @@ class QuorumView(viewsets.ModelViewSet):
     def retrieveByEvent(self, request, pk=None):
         # check if request.user is staff
         if self.request.user.is_staff:
-            quorums = Quorum.objects.filter(evento=pk)            
+            quorums = Quorum.objects.filter(evento=pk)
             serializer = QuorumSerializer(quorums, many=True)
             return Response({'quorums': serializer.data}, status=status.HTTP_200_OK)
         else:
@@ -330,6 +330,7 @@ class QuorumView(viewsets.ModelViewSet):
                 total_quorum += asambleista.coeficiente
             request.data['coeficiente_total'] = total_quorum
             request.data['coeficiente_registrado'] = evento.quorum
+            request.data['cantidadPersonas'] = evento.cantidadQuorum
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
@@ -370,11 +371,13 @@ def solicitaQuorum(request, pk=None):
 @permission_classes([IsAuthenticated])
 def regitroQuorum(request, pk=None):
     usuario = get_object_or_404(Asambleista, id=request.user.id)
-    evento = get_object_or_404(Evento, id=pk)
+    evento = get_object_or_404(Evento, id=pk)    
     if (usuario.quorumStatus == False) and (evento.regitroQuorum):
         quorum = evento.quorum
         quorum += usuario.coeficiente
-        Evento.objects.filter(id=pk).update(quorum=quorum)
+        cantidad = evento.cantidadQuorum + usuario.cantidadPoderes + 1
+        Evento.objects.filter(id=pk).update(
+            quorum=quorum, cantidadQuorum=cantidad)
         Asambleista.objects.filter(
             id=request.user.id).update(quorumStatus=True)
         return Response({"detail": "El registro de asistencia del asambleista es correcto"}, status=status.HTTP_200_OK)
@@ -388,7 +391,8 @@ def reinicioQuorum(request, pk=None):
     if request.user.is_staff:
         usuarios = Asambleista.objects.filter(
             evento=pk).update(quorumStatus=False)
-        Evento.objects.filter(id=pk).update(regitroQuorum=False, quorum=0.0)
+        Evento.objects.filter(id=pk).update(
+            regitroQuorum=False, quorum=0.0, cantidadQuorum=0)
         return Response({"detail": "Se ha reiniciado el quorum del evento"}, status=status.HTTP_200_OK)
     else:
         return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
