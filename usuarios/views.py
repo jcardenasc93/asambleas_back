@@ -383,4 +383,5 @@ def actualizaCoeficientes(request, pk=None):
                         id=apoderado.representado_por.id).update(coeficientePoderesDia=total_coeficiente_aldia)
 
         Asambleista.objects.filter(id=pk).update(coeficienteTotal=total_coeficiente)
-        return Response({"coeficiente_total": total_coeficiente, "coeficiente_al_dia": total_coeficiente_aldia})
+        Asambleista.objects.filter(id=pk).update(cantidadPoderes=len(apoderados_validos))
+        return Response({"coeficiente_total": total_coeficiente, "coeficiente_al_dia": total_coeficiente_aldia, "cantidadPoderes": len(apoderados_validos)})

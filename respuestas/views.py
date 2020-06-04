@@ -251,6 +251,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                             return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
 
             maxResps = pregunta.respuestasPermitidas
+            request.data['votos'] = asambleista.cantidadPoderes + 1
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             respuesta = self.perform_create(

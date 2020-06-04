@@ -30,3 +30,4 @@ class RespuestaOpMultiple(Respuesta):
         OpcionesMultiple, related_name='opcion_multiple')
     coeficientes = models.DecimalField(
         max_digits=30, decimal_places=20, blank=True, null=True)
+    votos = models.IntegerField(null=True)
