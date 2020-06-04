@@ -224,16 +224,19 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                 request.data['coeficientes'] = Decimal(1.000)
                 if pregunta.bloquea_mora == False:
                     # Obtiene los poderes asociados al asambleista
-                    poderes = Apoderado.objects.filter(representado_por=asambleista.id).filter(validado=True)
+                    poderes = Apoderado.objects.filter(
+                        representado_por=asambleista.id).filter(validado=True)
                     cantidad = Decimal(float(len(poderes)))
                     request.data['coeficientes'] += cantidad
                 else:
                     if asambleista.coeficientePoderesDia != Decimal(0.0):
                         # Tiene poderes asociados
-                        poderes = Apoderado.objects.filter(representado_por=asambleista.id).filter(validado=True)
+                        poderes = Apoderado.objects.filter(
+                            representado_por=asambleista.id).filter(validado=True)
                         usuariosAlDia = []
                         for poder in poderes:
-                            representado = get_object_or_404(Asambleista, id=poder.representa_a.id)
+                            representado = get_object_or_404(
+                                Asambleista, id=poder.representa_a.id)
                             if representado.mora == False:
                                 # Valida que el usuario este AL DIA
                                 usuariosAlDia.append(representado)
@@ -246,7 +249,6 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                         # No tiene poderes asociados
                         if asambleista.mora:
                             return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
-            
 
             maxResps = pregunta.respuestasPermitidas
             serializer = self.get_serializer(data=request.data)
@@ -279,21 +281,26 @@ class RespOpMultipleView(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def sinVotos(request, pk=None):
-    if request.user.is_staff:
-        pregunta = get_object_or_404(PreguntaMultiple, id=pk)
+    pregunta = get_object_or_404(PreguntaMultiple, id=pk)    
+    sin_voto = []
+    coeficientes = Decimal(0.0)
+    if pregunta.bloquea_mora == False:
         asambleistas = Asambleista.objects.filter(evento=pregunta.evento.id)
-        sin_voto = []
-        coeficientes = Decimal(0.0)
         for asambleista in asambleistas:
             respuesta = RespuestaOpMultiple.objects.filter(
                 pregunta=pk).filter(asambleista=asambleista.id)
             poderes = Apoderado.objects.filter(representa_a=asambleista.id)
             if (len(respuesta) == 0) and (len(poderes) == 0):
-                sin_voto.append(asambleista.id)
-                print(type(asambleista.coeficiente))
+                sin_voto.append(asambleista.id)                
+                coeficientes += asambleista.coeficiente
+    else:
+        asambleistas = Asambleista.objects.filter(evento=pregunta.evento.id).filter(mora=False)
+        for asambleista in asambleistas:
+            respuesta = RespuestaOpMultiple.objects.filter(
+                pregunta=pk).filter(asambleista=asambleista.id)
+            poderes = Apoderado.objects.filter(representa_a=asambleista.id)
+            if (len(respuesta) == 0) and (len(poderes) == 0):
+                sin_voto.append(asambleista.id)                
                 coeficientes += asambleista.coeficiente
 
-        return Response({'sin_votar': sin_voto, 'conteo': len(sin_voto), 'coeficinete_sin_votar': coeficientes}, status=status.HTTP_200_OK)
-
-    else:
-        return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({'sin_votar': sin_voto, 'conteo': len(sin_voto), 'coeficinete_sin_votar': coeficientes}, status=status.HTTP_200_OK)
