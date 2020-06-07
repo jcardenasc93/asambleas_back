@@ -40,13 +40,9 @@ class ListEventosView(viewsets.ModelViewSet):
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def retrieve(self, request, pk=None):
-        # check if request.user is staff
-        if self.request.user.is_staff:
-            evento = get_object_or_404(Evento, id=pk)
-            evento_serializer = EventoSerializer(evento)
-            return Response({'evento': evento_serializer.data})
-        else:
-            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+        evento = get_object_or_404(Evento, id=pk)
+        evento_serializer = EventoSerializer(evento)
+        return Response({'evento': evento_serializer.data})
 
     def update(self, request, pk=None, **kwargs):
         evento = get_object_or_404(Evento, id=pk)
@@ -371,7 +367,7 @@ def solicitaQuorum(request, pk=None):
 @permission_classes([IsAuthenticated])
 def regitroQuorum(request, pk=None):
     usuario = get_object_or_404(Asambleista, id=request.user.id)
-    evento = get_object_or_404(Evento, id=pk)    
+    evento = get_object_or_404(Evento, id=pk)
     if (usuario.quorumStatus == False) and (evento.regitroQuorum):
         quorum = evento.quorum
         quorum += usuario.coeficiente
