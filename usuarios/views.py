@@ -116,9 +116,9 @@ def createUser(request, pk=None):
                     username = random_username()
 
                     if mora.lower().strip() == 'al dia':
-                        mora = True
-                    else:
                         mora = False
+                    else:
+                        mora = True
 
                     asambleista = Asambleista(inmueble=inmueble, nombre_completo=nombres,
                                               documento=documento, email=correo, celular=celular, coeficiente=coeficiente,
