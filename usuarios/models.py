@@ -32,6 +32,7 @@ class Asambleista(Usuario):
     nombre_completo = models.CharField(max_length=200)
     correo_enviado = models.BooleanField(default=False)
     cantidadPoderes = models.IntegerField(default=0)
+    propietario = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'asambleista'
