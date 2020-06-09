@@ -1,0 +1,31 @@
+{
+  "name": "eOpinion backend app",
+  "description": "Backend de la plataforma eOpinion",
+  "repository": "https://github.com/jcardenasc93/asambleas_back",
+  "logo": "",
+  "keywords": [
+    "eopinion",
+    "django"
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql"
+    }
+  ],
+  "env": {
+    "BUCKETEER_AWS_ACCESS_KEY_ID": 1,
+    "BUCKETEER_AWS_REGION": "us-east-1",
+    "BUCKETEER_AWS_SECRET_ACCESS_KEY": 1,
+    "BUCKETEER_BUCKET_NAME": 1,
+    "EMAIL_PORT": "587",
+    "EMAIL_SMTP": "smtp.office365.com",
+    "SECRET_KEY": {
+      "generator": "secret"
+    },
+    "DISABLE_COLLECTSTATIC": "1"
+  },
+  "scripts": {
+    "postdeploy": "exec python manage.py createsuperuser"
+  }
+  
+}
