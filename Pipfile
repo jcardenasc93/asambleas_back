@@ -8,6 +8,19 @@ verify_ssl = true
 [packages]
 django = "==3.0"
 psycopg2 = "*"
+psycopg2-binary = "*"
+django-phonenumber-field = {extras = ["phonenumbers"],version = "*"}
+djoser = "*"
+djangorestframework = "*"
+openpyxl = "*"
+django-heroku = "*"
+gunicorn = "*"
+whitenoise = "*"
+django-cors-headers = "*"
+xlrd = "*"
+boto3 = "*"
+django-storages = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"
