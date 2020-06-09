@@ -73,7 +73,7 @@ class OpcionesMultiple(models.Model):
 
 
 doc_validator = ['pdf', 'PDF', 'jpeg', 'JPEG',
-                 'jpg', 'JPG', 'mp4', 'MP4', 'mov', 'MOV']
+                 'jpg', 'JPG', 'png', 'PNG', 'mp4', 'MP4', 'mov', 'MOV']
 
 
 class Documentos(models.Model):
