@@ -204,16 +204,16 @@ class ListAsambleistasView(viewsets.ModelViewSet):
     def update(self, request, pk=None, **kwargs):
         asambleista = get_object_or_404(Asambleista, id=pk)
         # check if request.user is staff
-        if self.request.user.is_staff:
-            partial = kwargs.pop('partial', False)
-            serializer = AsambleistaSerializer(
-                asambleista, data=request.data, partial=partial)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
+        #if self.request.user.is_staff:
+        partial = kwargs.pop('partial', False)
+        serializer = AsambleistaSerializer(
+            asambleista, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
-            return Response(serializer.data)
-        else:
-            return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.data)
+        #else:
+        #    return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def resendMail(self, request, pk=None, **kwargs):
         asambleista = get_object_or_404(Asambleista, id=pk)
