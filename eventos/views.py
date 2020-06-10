@@ -24,7 +24,7 @@ class ListEventosView(viewsets.ModelViewSet):
     def get_queryset(self):
         # check if request.user is staff
         if self.request.user.is_staff:
-            return Evento.objects.all()
+            return Evento.objects.filter().order_by('fecha')
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
