@@ -22,6 +22,8 @@ class Evento(models.Model):
         verbose_name='logo', null=True, upload_to='logos')
     link_conferencia = models.URLField(
         verbose_name='link_conferencia', null=True)
+    codConferencia = models.CharField(
+        max_length=150, verbose_name='codigo_conferencia', null=True)
 
     @property
     def filename(self):
