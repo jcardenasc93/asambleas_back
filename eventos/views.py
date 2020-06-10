@@ -7,7 +7,8 @@ from rest_framework import status
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
-
+import boto3
+import os
 
 from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, \
     OpcionMultipleSerializer, DocumentoSerializer, QuorumSerializer
@@ -295,6 +296,20 @@ class DocumentosView(viewsets.ModelViewSet):
         documento = get_object_or_404(Documentos, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
+            # Connection to bucket
+            AWS_ACCESS_KEY_ID = os.environ.get('BUCKETEER_AWS_ACCESS_KEY_ID', None)
+            AWS_SECRET_ACCESS_KEY = os.environ.get(
+                'BUCKETEER_AWS_SECRET_ACCESS_KEY', None)
+            bucket = os.environ.get('BUCKETEER_BUCKET_NAME', None)
+            archivo = 'media/' + str(documento.documento)
+            s3_session = boto3.client(service_name='s3',
+                                      aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+            try:
+                # Delete file in bucket
+                s3_session.delete_object(Bucket=bucket, Key=archivo)                
+            except Exception as e:
+                print(e)
+            
             self.perform_destroy(documento)
             return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
