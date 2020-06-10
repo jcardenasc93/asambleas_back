@@ -17,6 +17,28 @@ from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, 
 from usuarios.models import Asambleista, Apoderado
 
 
+def deleteBucketObjects(files):
+    # Connection to bucket
+    AWS_ACCESS_KEY_ID = os.environ.get(
+        'BUCKETEER_AWS_ACCESS_KEY_ID', None)
+    AWS_SECRET_ACCESS_KEY = os.environ.get(
+        'BUCKETEER_AWS_SECRET_ACCESS_KEY', None)
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('BUCKETEER_BUCKET_NAME', None)
+
+    session = boto3.Session(
+        aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+    s3 = session.resource('s3')
+    
+    for f in files:
+        try:
+            # Delete file in bucket
+            obj = s3.Object(AWS_STORAGE_BUCKET_NAME, f)
+            obj.delete()            
+        except Exception as e:
+            print(e)
+    
+
+
 class ListEventosView(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -62,6 +84,15 @@ class ListEventosView(viewsets.ModelViewSet):
         evento = get_object_or_404(Evento, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
+            archivos = []
+            if evento.documento_excel:
+                documento_excel = 'media/' + str(evento.documento_excel)
+                archivos.append(documento_excel)
+            if evento.logo_asamblea:
+                logo_asamblea = 'media/' + str(evento.logo_asamblea)
+                archivos.append(logo_asamblea)
+
+            deleteBucketObjects(archivos)
             self.perform_destroy(evento)
             return Response({'detail': 'Evento eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
@@ -296,22 +327,11 @@ class DocumentosView(viewsets.ModelViewSet):
         documento = get_object_or_404(Documentos, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
-            # Connection to bucket
-            AWS_ACCESS_KEY_ID = os.environ.get('BUCKETEER_AWS_ACCESS_KEY_ID', None)
-            AWS_SECRET_ACCESS_KEY = os.environ.get(
-                'BUCKETEER_AWS_SECRET_ACCESS_KEY', None)
-            bucket = os.environ.get('BUCKETEER_BUCKET_NAME', None)
-            archivo = 'media/' + str(documento.documento)
-            s3_session = boto3.client(service_name='s3',
-                                      aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-            try:
-                # Delete file in bucket
-                s3_session.delete_object(Bucket=bucket, Key=archivo)                
-            except Exception as e:
-                print(e)
-            
+            archivos = []
+            archivos.append('media/' + str(documento.documento))
+            deleteBucketObjects(archivos)
             self.perform_destroy(documento)
-            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)            
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
