@@ -75,7 +75,7 @@ class ListPregAbiertaView(viewsets.ModelViewSet):
     def get_queryset(self):
         # check if request.user is staff
         if self.request.user.is_staff:
-            return PreguntaAbierta.objects.filter().order_by('id')
+            return PreguntaAbierta.objects.filter().order_by('enunciado')
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -139,7 +139,7 @@ class ListPregDecimalView(viewsets.ModelViewSet):
     def get_queryset(self):
         # check if request.user is staff
         if self.request.user.is_staff:
-            return PreguntaDecimal.objects.filter().order_by('id')
+            return PreguntaDecimal.objects.filter().order_by('enunciado')
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -203,7 +203,7 @@ class ListPregMultipleView(viewsets.ModelViewSet):
     def get_queryset(self):
         # check if request.user is staff
         if self.request.user.is_staff:
-            return PreguntaMultiple.objects.filter().order_by('id')
+            return PreguntaMultiple.objects.filter().order_by('enunciado')
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
