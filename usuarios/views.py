@@ -21,6 +21,7 @@ from email.mime.text import MIMEText
 from .models import Asambleista, Apoderado
 from .serializers import AsambleistaSerializer, ApoderadosSerializer
 from eventos.models import Evento
+from eventos.views import deleteBucketObjects
 # Create your views here.
 
 
@@ -338,6 +339,10 @@ class ApoderadosView(viewsets.ModelViewSet):
         apoderado = get_object_or_404(Apoderado, id=pk)
         # check if request.user is staff
         if self.request.user.is_staff:
+            archivos = []
+            documento_poder = 'media/' + str(apoderado.documento_poder)
+            archivos.append(documento_poder)
+            deleteBucketObjects(archivos)
             self.perform_destroy(apoderado)
             return Response({'detail': 'Apoderado eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
