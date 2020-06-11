@@ -94,10 +94,10 @@ class RespDecimalView(viewsets.ModelViewSet):
 
     def get_queryset(self, request, pk=None):
         # check if request.user is staff
-        if self.request.user.is_staff:
-            respuestas = RespuestaDecimal.objects.filter(pregunta=pk)
-            serializer = RespDecimalSerializer(respuestas, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        #if self.request.user.is_staff:
+        respuestas = RespuestaDecimal.objects.filter(pregunta=pk)
+        serializer = RespDecimalSerializer(respuestas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)

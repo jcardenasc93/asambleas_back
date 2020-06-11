@@ -258,9 +258,9 @@ class ApoderadosView(viewsets.ModelViewSet):
     serializer_class = ApoderadosSerializer
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Apoderado.objects.all()
-        return Apoderado.objects.filter(representado_por=self.request.user.id)
+        #if self.request.user.is_staff:
+        return Apoderado.objects.all()
+        #return Apoderado.objects.filter(representado_por=self.request.user.id)
 
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
