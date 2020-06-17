@@ -54,13 +54,40 @@ def sendMail(body, asambleista, password):
         body_mail = """ 
         <html>\
             <body>
-                <p>%s</p>                
-                <p>Ingresa a la <a href="%s"> asamblea</a> con las siguientes credenciales</p>                
-                <span style="font-weight: bold;">Usuario: </span>%s
+                <span>Reciba un cordial saludo del equipo de eOpinion |</span> <em> opiniones que cuentan.</em>
+                <p>%s</p>   
+                <p>Antes que nada, le informamos que se ha celebrado con la directiva de su comunidad, un acuerdo de confidencialidad, 
+                en el cual nos comprometemos a que los datos de los titulares de la información suministrada, serán para uso exclusivo 
+                del evento para el cual fue contratado el servicio y tendrán una vigencia igual al tiempo en que se mantenga y utilice 
+                la información, para las finalidades descritas en nuestra Política de Tratamiento de Datos Personales y una vez se cumpla 
+                el evento y siempre que no exista un deber legal o contractual de conservar la información, los datos serán eliminados en 
+                su totalidad de nuestras bases de datos.</p>
+                En esta comunicación encontrará las credenciales únicas de acceso a la <span style="font-weight:bold">Aplicación de Votación eOpinion</span>, 
+                las cuales son generadas automáticamente y de forma encriptada para su seguridad.<br/><br/>
+                El ingreso a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span> lo podrá hacer desde cualquier dispositivo 
+                con internet (smart phone, tablet, computador o smart TV) permitiéndole interactuar y tomar decisiones de forma confiable, en este 
+                sentido es importante tener en cuenta para el éxito de la reunión, las siguientes recomendaciones técnicas y de procedimiento:<br/><br/>
+                <ul>
+                  <li>Tenga en cuenta que las credenciales que le suministraremos en esta comunicación son personales e intransferibles, por lo cual sugerimos 
+                  custodiarlas debidamente y no compartirlas, a menos que usted otorgue el poder a un tercero externo de su confianza para que le represente, dado 
+                  que, si el apoderado pertenece a su misma comunidad, éste podrá ingresar con sus propias credenciales y registrar el poder que usted le ha otorgado 
+                  de acuerdo con el reglamento o estatutos de su comunidad o institución.</li>
+                  <li>Para ingresar de forma segura a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span>y evitar equivocaciones, copie y pegue 
+                  desde este correo, el usuario y la contraseña asignadas.</li>
+                  <li>Una vez haya ingresado, encontrará su nombre e información relacionada con su participación en la reunión, igualmente deberá seleccionar su calidad 
+                  de asistente y en caso de ser apoderado de una o varias unidades, deberá cargar los poderes con anticipación de por lo menos un día antes de la reunión, 
+                  presionando el botón <span style="font-weight:bold">“Registro de Poderes” </span>para así ser validados y asociados a las unidades correspondientes.</li>
+                  <li>Adicionalmente, verá un vínculo de <span style="font-weight:bold">“Ir a la reunión” </span>y una <span style="font-weight:bold">contraseña </span>
+                  de la reunión que requerirá para participar en ésta.</li>
+                  <li>También tendrá la posibilidad de descargar para su consulta, todos los documentos relacionados con la reunión (convocatoria, reglamento, formato de poderes e informes)</li>
+                </ul> 
+
+                <p>Para ingresar a la aplicación haga click <a href="%s"> AQUÍ</a> y utilice las siguientes credenciales:</p>       
+                <span style="font-weight: bold; text-decoration: underline;">Usuario: </span>%s
                 <br>
-                <span style="font-weight: bold;">Contraseña: </span>%s
+                <span style="font-weight: bold; text-decoration: underline;">Contraseña: </span>%s
                 <br>
-                <p>Cordialmente el equio de eOpinion</p>
+                <span style="font-weight: bold;">Cordialmente el equio de eOpinion</span>
             </body>
         </html>""" % (body, os.environ.get('ASAMBLEA_URL', None), asambleista.username, password)
 
@@ -205,7 +232,7 @@ class ListAsambleistasView(viewsets.ModelViewSet):
     def update(self, request, pk=None, **kwargs):
         asambleista = get_object_or_404(Asambleista, id=pk)
         # check if request.user is staff
-        #if self.request.user.is_staff:
+        # if self.request.user.is_staff:
         partial = kwargs.pop('partial', False)
         serializer = AsambleistaSerializer(
             asambleista, data=request.data, partial=partial)
@@ -213,7 +240,7 @@ class ListAsambleistasView(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         return Response(serializer.data)
-        #else:
+        # else:
         #    return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
     def resendMail(self, request, pk=None, **kwargs):
@@ -258,9 +285,9 @@ class ApoderadosView(viewsets.ModelViewSet):
     serializer_class = ApoderadosSerializer
 
     def get_queryset(self):
-        #if self.request.user.is_staff:
+        # if self.request.user.is_staff:
         return Apoderado.objects.all()
-        #return Apoderado.objects.filter(representado_por=self.request.user.id)
+        # return Apoderado.objects.filter(representado_por=self.request.user.id)
 
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
@@ -283,7 +310,7 @@ class ApoderadosView(viewsets.ModelViewSet):
         # check if request.user is staff
         if self.request.user.is_staff:
             if representa_a:
-                if len(Apoderado.objects.filter(representa_a=representa_a).filter(validado=True)) == 0:                    
+                if len(Apoderado.objects.filter(representa_a=representa_a).filter(validado=True)) == 0:
                     partial = kwargs.pop('partial', False)
                     serializer = ApoderadosSerializer(
                         apoderado, data=request.data, partial=partial)
@@ -358,7 +385,7 @@ def actualizaCoeficientes(request, pk=None):
             representado_por=pk).filter(validado=True)
         total_coeficiente = asambleista.coeficienteTotal
         total_coeficiente_aldia = asambleista.coeficientePoderesDia
-        
+
         if len(apoderados_validos) > 0:
             for apoderado in apoderados_validos:
                 if apoderado.sumado == False:
@@ -387,6 +414,8 @@ def actualizaCoeficientes(request, pk=None):
                     Asambleista.objects.filter(
                         id=apoderado.representado_por.id).update(coeficientePoderesDia=total_coeficiente_aldia)
 
-        Asambleista.objects.filter(id=pk).update(coeficienteTotal=total_coeficiente)
-        Asambleista.objects.filter(id=pk).update(cantidadPoderes=len(apoderados_validos))
+        Asambleista.objects.filter(id=pk).update(
+            coeficienteTotal=total_coeficiente)
+        Asambleista.objects.filter(id=pk).update(
+            cantidadPoderes=len(apoderados_validos))
         return Response({"coeficiente_total": total_coeficiente, "coeficiente_al_dia": total_coeficiente_aldia, "cantidadPoderes": len(apoderados_validos)})
