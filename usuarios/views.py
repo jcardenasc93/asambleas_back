@@ -54,7 +54,7 @@ def sendMail(body, asambleista, password):
         body_mail = """ 
         <html>\
             <body>
-                <span>Reciba un cordial saludo del equipo de eOpinion |</span> <em> opiniones que cuentan.</em>
+                <span>Reciba un cordial saludo del equipo de eOpinion | opiniones que cuentan.</span>
                 <p>%s</p>   
                 <p>Le informamos que se ha celebrado con la directiva de su comunidad, un acuerdo de confidencialidad, en el cual nos comprometemos a que 
                 los datos de los titulares de la información suministrada, serán para uso exclusivo del evento para el cual fue contratado el servicio y 
@@ -85,7 +85,8 @@ def sendMail(body, asambleista, password):
                 <span style="font-weight: bold; text-decoration: underline;">Usuario</span><span style="font-weight: bold;">: </span>%s
                 <br>
                 <span style="font-weight: bold; text-decoration: underline;">Contraseña</span><span style="font-weight: bold;">: </span>%s
-                <br>
+                <br/>
+                <br/>
                 <span style="font-weight: bold;">Cordialmente el equipo de eOpinion</span>
             </body>
         </html>""" % (body, os.environ.get('ASAMBLEA_URL', None), asambleista.username, password)
