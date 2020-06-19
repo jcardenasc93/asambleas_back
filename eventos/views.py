@@ -308,7 +308,7 @@ class DocumentosView(viewsets.ModelViewSet):
     serializer_class = DocumentoSerializer
 
     def retrieveEvent(self, request, pk=None):
-        documentos = Documentos.objects.filter(evento=pk)
+        documentos = Documentos.objects.filter(evento=pk).order_by('nombre')
         serializer_data = DocumentoSerializer(documentos, many=True)
         return Response({'documentos': serializer_data.data}, status=status.HTTP_200_OK)
 
