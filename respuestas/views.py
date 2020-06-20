@@ -57,12 +57,12 @@ class RespAbiertaView(viewsets.ModelViewSet):
                     headers = self.get_success_headers(serializer.data)
                     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
                 else:
-                    return Response({'detail': 'El usuario no puede contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'Tiempo Agotado'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 asambleista = get_object_or_404(
                     Asambleista, id=self.request.user.id)
                 if asambleista.mora:
-                    return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     serializer = self.get_serializer(data=request.data)
                     serializer.is_valid(raise_exception=True)
@@ -102,8 +102,7 @@ class RespDecimalView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
         respuesta_repetida = RespuestaDecimal.objects.filter(pregunta=self.request.data['pregunta']).filter(
-            asambleista=asambleista.id)
-        print(len(respuesta_repetida))
+            asambleista=asambleista.id)        
         if len(respuesta_repetida) == 0:
             pregunta = get_object_or_404(
                 PreguntaDecimal, id=self.request.data['pregunta'])
