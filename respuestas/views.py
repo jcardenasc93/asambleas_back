@@ -94,7 +94,7 @@ class RespDecimalView(viewsets.ModelViewSet):
 
     def get_queryset(self, request, pk=None):
         # check if request.user is staff
-        #if self.request.user.is_staff:
+        # if self.request.user.is_staff:
         respuestas = RespuestaDecimal.objects.filter(pregunta=pk)
         serializer = RespDecimalSerializer(respuestas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -102,14 +102,15 @@ class RespDecimalView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         asambleista = get_object_or_404(Asambleista, id=self.request.user.id)
         respuesta_repetida = RespuestaDecimal.objects.filter(pregunta=self.request.data['pregunta']).filter(
-            asambleista=asambleista.id)        
+            asambleista=asambleista.id)
         if len(respuesta_repetida) == 0:
             pregunta = get_object_or_404(
                 PreguntaDecimal, id=self.request.data['pregunta'])
             if datetime.now().time() <= pregunta.time_final:
                 return serializer.save(asambleista=asambleista)
             else:
-                return None
+                # Tiempo agotado
+                return 1
         else:
             return None
 
@@ -125,26 +126,47 @@ class RespDecimalView(viewsets.ModelViewSet):
                     serializer.is_valid(raise_exception=True)
                     respuesta = self.perform_create(serializer)
                     if respuesta:
-                        headers = self.get_success_headers(serializer.data)
-                        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                        if respuesta != 1:
+                            # Guarda respuesta satisfactoriamente
+                            headers = self.get_success_headers(serializer.data)
+                            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                        else:
+                            return Response({'detail': 'Tiempo Agotado'}, status=status.HTTP_400_BAD_REQUEST)
+
                     else:
-                        return Response({'detail': 'El usuario no puede contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response({'detail': 'El valor no esta entre los rangos min y max permitidos'}, status=status.HTTP_400_BAD_REQUEST)
+
             else:
                 asambleista = get_object_or_404(
                     Asambleista, id=self.request.user.id)
-                if asambleista.mora:
-                    return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+                if asambleista.coeficientePoderesDia != Decimal(0.0):
+                    # Tiene poderes de usuarios al dia asociados
+                    validate = True
+
                 else:
+                    # No tiene poderes asociados
+                    if asambleista.mora:
+                        return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        validate = True
+
+                if validate:                    
                     serializer = self.get_serializer(data=request.data)
                     serializer.is_valid(raise_exception=True)
                     respuesta = self.perform_create(serializer)
-                    if respuesta:
+                    print(respuesta)
+
+                if respuesta:                    
+                    if respuesta != 1:
+                        # Crea respuesta satisfactoriamente
                         headers = self.get_success_headers(serializer.data)
                         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
                     else:
-                        return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'detail': 'Tiempo Agotado'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
             return Response({'detail': 'La pregunta no se encuentra activa'}, status=status.HTTP_400_BAD_REQUEST)
@@ -281,7 +303,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def sinVotos(request, pk=None):
-    pregunta = get_object_or_404(PreguntaMultiple, id=pk)    
+    pregunta = get_object_or_404(PreguntaMultiple, id=pk)
     sin_voto = []
     coeficientes = Decimal(0.0)
     if pregunta.bloquea_mora == False:
@@ -291,16 +313,17 @@ def sinVotos(request, pk=None):
                 pregunta=pk).filter(asambleista=asambleista.id)
             poderes = Apoderado.objects.filter(representa_a=asambleista.id)
             if (len(respuesta) == 0) and (len(poderes) == 0):
-                sin_voto.append(asambleista.id)                
+                sin_voto.append(asambleista.id)
                 coeficientes += asambleista.coeficiente
     else:
-        asambleistas = Asambleista.objects.filter(evento=pregunta.evento.id).filter(mora=False)
+        asambleistas = Asambleista.objects.filter(
+            evento=pregunta.evento.id).filter(mora=False)
         for asambleista in asambleistas:
             respuesta = RespuestaOpMultiple.objects.filter(
                 pregunta=pk).filter(asambleista=asambleista.id)
             poderes = Apoderado.objects.filter(representa_a=asambleista.id)
             if (len(respuesta) == 0) and (len(poderes) == 0):
-                sin_voto.append(asambleista.id)                
+                sin_voto.append(asambleista.id)
                 coeficientes += asambleista.coeficiente
 
     return Response({'sin_votar': sin_voto, 'conteo': len(sin_voto), 'coeficinete_sin_votar': coeficientes}, status=status.HTTP_200_OK)
