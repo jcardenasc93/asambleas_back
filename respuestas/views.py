@@ -152,13 +152,13 @@ class RespDecimalView(viewsets.ModelViewSet):
                     else:
                         validate = True
 
-                if validate:                    
+                if validate:
                     serializer = self.get_serializer(data=request.data)
                     serializer.is_valid(raise_exception=True)
                     respuesta = self.perform_create(serializer)
                     print(respuesta)
 
-                if respuesta:                    
+                if respuesta:
                     if respuesta != 1:
                         # Crea respuesta satisfactoriamente
                         headers = self.get_success_headers(serializer.data)
@@ -216,7 +216,8 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                 else:
                     return serializer.save(asambleista=asambleista)
             else:
-                return None
+                # Tiempo agotado
+                return 2
         else:
             return None
 
@@ -240,7 +241,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                     else:
                         # No tiene poderes asociados
                         if asambleista.mora:
-                            return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 request.data['coeficientes'] = Decimal(1.000)
                 if pregunta.bloquea_mora == False:
@@ -269,7 +270,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                     else:
                         # No tiene poderes asociados
                         if asambleista.mora:
-                            return Response({'detail': 'El usuario no esta habilitado para contestar'}, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
 
             maxResps = pregunta.respuestasPermitidas
             request.data['votos'] = asambleista.cantidadPoderes + 1
@@ -278,11 +279,13 @@ class RespOpMultipleView(viewsets.ModelViewSet):
             respuesta = self.perform_create(
                 serializer, maxResps, pregunta.esMultipleResp, pregunta.strictMax)
             if respuesta:
-                if respuesta != 1:
+                if (respuesta != 1) and (respuesta != 2):
                     headers = self.get_success_headers(serializer.data)
                     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-                else:
+                if respuesta == 1:
                     return Response({'detail': 'Cantidad de opciones seleccionadas no permitida'}, status=status.HTTP_400_BAD_REQUEST)
+                if respuesta == 2:
+                    return Response({'detail': 'Tiempo Agotado'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
 
