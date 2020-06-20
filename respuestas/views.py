@@ -40,7 +40,7 @@ class RespAbiertaView(viewsets.ModelViewSet):
             if datetime.now().time() <= pregunta.time_final:
                 return serializer.save(asambleista=asambleista)
             else:
-                return None
+                return 1
         else:
             return None
 
@@ -54,10 +54,13 @@ class RespAbiertaView(viewsets.ModelViewSet):
                 serializer.is_valid(raise_exception=True)
                 respuesta = self.perform_create(serializer)
                 if respuesta:
-                    headers = self.get_success_headers(serializer.data)
-                    return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                    if respuesta != 1:
+                        headers = self.get_success_headers(serializer.data)
+                        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                    else:
+                        return Response({'detail': 'Tiempo Agotado'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response({'detail': 'Tiempo Agotado'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'El usuario ya contestó la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 asambleista = get_object_or_404(
                     Asambleista, id=self.request.user.id)
