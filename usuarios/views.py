@@ -56,30 +56,12 @@ def sendMail(body, asambleista, password):
             <body>
                 <span>Reciba un cordial saludo del equipo de eOpinion | opiniones que cuentan.</span>
                 <p>%s</p>   
-                <p>Le informamos que se ha celebrado con la directiva de su comunidad, un acuerdo de confidencialidad, en el cual nos comprometemos a que 
-                los datos de los titulares de la información suministrada, serán para uso exclusivo del evento para el cual fue contratado el servicio y 
-                tendrán una vigencia igual al tiempo en que se mantenga y utilice la información, para las finalidades descritas en nuestra Política de 
-                Tratamiento de Datos Personales y una vez finalice el evento y siempre que no exista un deber legal o contractual de conservar la información, 
-                los datos serán eliminados en su totalidad de nuestras bases de datos.</p>
-                En esta comunicación encontrará las credenciales únicas de acceso a la <span style="font-weight:bold">Aplicación de Votación eOpinion</span>, 
-                las cuales son generadas automáticamente y de forma encriptada para su seguridad.<br/><br/>
-                El ingreso a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span> lo podrá hacer desde cualquier dispositivo (smart phone, 
-                tablet, computador o smart TV) con internet mínimo de 10Mb, permitiéndole interactuar y tomar decisiones de forma confiable. En este sentido es 
-                importante tener en cuenta para el éxito de la reunión, las siguientes recomendaciones técnicas y de procedimiento:<br/><br/>
-                <ul>
-                  <li>Tenga en cuenta que las credenciales que le suministraremos en esta comunicación son personales e intransferibles, por lo cual sugerimos 
-                  custodiarlas debidamente y no compartirla.</li>
-                  <li>Si usted otorga un poder, el apoderado podrá ingresar con sus propias credenciales y registrar el poder de acuerdo con el reglamento o 
-                  estatutos de su comunidad o institución.</li>
-                  <li>Para ingresar de forma segura a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span>y evitar equivocaciones, copie y pegue 
-                  desde este correo, el usuario y la contraseña asignadas.</li>
-                  <li>Una vez haya ingresado, encontrará su nombre e información relacionada con su participación en la reunión; igualmente deberá seleccionar su calidad 
-                  de asistente y en caso de ser apoderado de una o varias unidades, deberá cargar el (los) poder (es) con anticipación (mínimo un día antes de la reunión) 
-                  presionando el botón <span style="font-weight:bold">“Registro de Poderes” </span>para así ser validados y asociados a las unidades correspondientes.</li>
-                  <li>Adicionalmente, visualizará un vínculo de <span style="font-weight:bold">“Ir a la reunión” </span>y una <span style="font-weight:bold">contraseña </span>
-                  de la reunión que requerirá para participar en la plataforma de interacción.</li>
-                  <li>También tendrá la posibilidad de descargar para su consulta, todos los documentos relacionados con la reunión (convocatoria, reglamento, formato de poderes e informes)</li>
-                </ul> 
+                <p>Le informamos que se ha celebrado con la directiva de su comunidad, un acuerdo de confidencialidad, en el cual nos 
+                comprometemos a que los datos de los titulares de la información suministrada, serán para uso exclusivo del evento para 
+                el cual fue contratado el servicio y tendrán una vigencia igual al tiempo en que se mantenga y utilice la información, 
+                para las finalidades descritas en nuestra Política de Tratamiento de Datos Personales y una vez finalice el evento y siempre 
+                que no exista un deber legal o contractual de conservar la información, los datos serán eliminados en su totalidad de nuestras 
+                bases de datos.</p> 
 
                 <p>Para ingresar a la aplicación haga click <a href="%s"> AQUÍ</a> y utilice las siguientes credenciales:</p>       
                 <span style="font-weight: bold; text-decoration: underline;">Usuario</span><span style="font-weight: bold;">: </span>%s
