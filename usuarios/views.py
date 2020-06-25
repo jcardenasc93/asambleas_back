@@ -357,6 +357,12 @@ class ApoderadosView(viewsets.ModelViewSet):
         apoderado_serializer = ApoderadosSerializer(apoderado)
         return Response({'apoderado': apoderado_serializer.data}, status=status.HTTP_200_OK)
 
+    def retrieveSelfPoderes(self, request):
+        apoderados = Apoderado.objects.filter(
+            representado_por=self.request.user.id)
+        poderes_serializer = ApoderadosSerializer(apoderados, many=True)
+        return Response({'poderes': poderes_serializer.data}, status=status.HTTP_200_OK)
+
     def destroy(self, request, pk):
         apoderado = get_object_or_404(Apoderado, id=pk)
         # check if request.user is staff
