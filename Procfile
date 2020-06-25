@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn asambleas.wsgi --log-file - --timeout 120
+web: gunicorn asambleas.wsgi --log-file - --timeout 600
