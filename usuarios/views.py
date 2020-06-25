@@ -163,7 +163,7 @@ def createUser(request, pk=None):
 
             if (len(usuarios_no_creados) > 0) or (len(correosFalla) > 0):
                 return Response({'usuarios_no_creados': usuarios_no_creados, 'correos_fallidos': correosFalla},
-                                status=status.HTTP_206_PARTIAL_CONTENT, headers={'Access-Control-Allow-Origin': '*'})
+                                status=status.HTTP_206_PARTIAL_CONTENT)
             else:
                 return Response({'detail': 'Todos los usuarios se crearon correctamente'},
                                 status=status.HTTP_201_CREATED)
