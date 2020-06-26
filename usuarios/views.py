@@ -145,12 +145,12 @@ def createUser(request, pk=None):
                     
                     if inmueble != '':
 
-                        asambleista = Asambleista(inmueble=inmueble, nombre_completo=nombres,
-                                                  documento=documento, email=correo, celular=celular, coeficiente=coeficiente,
+                        asambleista = Asambleista(inmueble=inmueble.strip(), nombre_completo=nombres.strip(),
+                                                  documento=documento.strip(), email=correo.strip(), celular=celular.strip(), coeficiente=coeficiente.strip(),
                                                   mora=mora, username=username, evento_id=pk)
                         password = random_password()
                         asambleista.set_password(password)
-    
+
                         try:
                             correosFalla = []
                             asambleista.save()
@@ -158,7 +158,7 @@ def createUser(request, pk=None):
                                 evento.bodyCorreo, asambleista, password)
                             if validaEnvio == False:
                                 correosFalla.append(asambleista.email)
-    
+
                         except:
                             usuarios_no_creados.append(inmueble)
                             pass
