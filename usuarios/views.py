@@ -142,24 +142,26 @@ def createUser(request, pk=None):
                         mora = False
                     else:
                         mora = True
+                    
+                    if inmueble != '':
 
-                    asambleista = Asambleista(inmueble=inmueble, nombre_completo=nombres,
-                                              documento=documento, email=correo, celular=celular, coeficiente=coeficiente,
-                                              mora=mora, username=username, evento_id=pk)
-                    password = random_password()
-                    asambleista.set_password(password)
+                        asambleista = Asambleista(inmueble=inmueble.strip(), nombre_completo=nombres.strip(),
+                                                  documento=documento.strip(), email=correo.strip(), celular=celular.strip(), coeficiente=coeficiente.strip(),
+                                                  mora=mora, username=username, evento_id=pk)
+                        password = random_password()
+                        asambleista.set_password(password)
 
-                    try:
-                        correosFalla = []
-                        asambleista.save()
-                        validaEnvio = sendMail(
-                            evento.bodyCorreo, asambleista, password)
-                        if validaEnvio == False:
-                            correosFalla.append(asambleista.email)
+                        try:
+                            correosFalla = []
+                            asambleista.save()
+                            validaEnvio = sendMail(
+                                evento.bodyCorreo, asambleista, password)
+                            if validaEnvio == False:
+                                correosFalla.append(asambleista.email)
 
-                    except:
-                        usuarios_no_creados.append(inmueble)
-                        pass
+                        except:
+                            usuarios_no_creados.append(inmueble)
+                            pass
 
             if (len(usuarios_no_creados) > 0) or (len(correosFalla) > 0):
                 return Response({'usuarios_no_creados': usuarios_no_creados, 'correos_fallidos': correosFalla},
