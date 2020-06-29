@@ -405,7 +405,7 @@ def regitroQuorum(request, pk=None):
     evento = get_object_or_404(Evento, id=pk)
     if (usuario.quorumStatus == False) and (evento.regitroQuorum):
         quorum = evento.quorum
-        quorum += usuario.coeficiente
+        quorum += usuario.coeficienteTotal
         cantidad = evento.cantidadQuorum + usuario.cantidadPoderes + 1
         Evento.objects.filter(id=pk).update(
             quorum=quorum, cantidadQuorum=cantidad)
