@@ -60,13 +60,15 @@ urlpatterns = [
          views.ListPregMultipleView.as_view({'post': 'destroy'}), name='elimina_preg_multiple'),
 
 
-    ### QUORUM ###
+    ### QUORUM FUN BASED###
     path('api/v1/quorum_status/<int:pk>',
          views.solicitaQuorum, name='solicita_quorum'),
     path('api/v1/quorum_asambleista/<int:pk>',
          views.regitroQuorum, name='quorum_asambleista'),
     path('api/v1/quorum_reset/<int:pk>',
          views.reinicioQuorum, name='quorum_reset'),
+    path('api/v1/quorum_report/<int:pk>',
+         views.reporteQuorum, name='quorum_report'),
 
     #### DOCUMENTOS ####
     path('api/v1/eventos/documentos/<int:pk>',
@@ -76,7 +78,7 @@ urlpatterns = [
     path('api/v1/eventos/eliminar_documento/<int:pk>',
          views.DocumentosView.as_view({'delete': 'destroy'}), name='elimina_doc'),
 
-    #### QUORUM ####
+    #### QUORUM CLASS BASED####
     path('api/v1/eventos/quorum/<int:pk>',
          views.QuorumView.as_view({'get': 'retrieveByEvent'}), name='list_quorum'),
     path('api/v1/eventos/quorum_nuevo',

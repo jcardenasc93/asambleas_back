@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 import os
 
+from django.contrib.postgres.fields import ArrayField
+
 # Create your models here.
 
 
@@ -95,3 +97,4 @@ class Quorum(models.Model):
     date_time = models.DateTimeField(
         auto_now_add=True, verbose_name='fecha_hora_registro')
     cantidadPersonas = models.IntegerField(default=0)
+    imuebles_registrados = ArrayField(models.CharField(null=False, max_length=4))
