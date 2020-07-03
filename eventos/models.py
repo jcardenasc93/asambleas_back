@@ -98,4 +98,4 @@ class Quorum(models.Model):
         auto_now_add=True, verbose_name='fecha_hora_registro')
     cantidadPersonas = models.IntegerField(default=0)
     imuebles_registrados = ArrayField(models.CharField(
-        null=True, max_length=4, default=''), blank=True, null=True)
+        null=True, max_length=4, default=''), blank=True, null=True, default=list())
