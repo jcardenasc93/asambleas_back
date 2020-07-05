@@ -335,7 +335,7 @@ class DocumentosView(viewsets.ModelViewSet):
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
 # Variable para capturar lista de usuarios que registraron quorum
-request.session['asambleistas_registrados'] = []
+
 
 class QuorumView(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -407,6 +407,7 @@ def solicitaQuorum(request, pk=None):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def regitroQuorum(request, pk=None):
+    asamb_registrados = []
     usuario = get_object_or_404(Asambleista, id=request.user.id)
     evento = get_object_or_404(Evento, id=pk)
     if (usuario.quorumStatus == False) and (evento.regitroQuorum):
