@@ -335,7 +335,7 @@ class DocumentosView(viewsets.ModelViewSet):
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
 # Variable para capturar lista de usuarios que registraron quorum
-
+asamb_registrados = []
 
 class QuorumView(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
