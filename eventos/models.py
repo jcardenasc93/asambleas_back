@@ -88,6 +88,14 @@ class Documentos(models.Model):
                                  FileExtensionValidator(allowed_extensions=doc_validator)])
 
 
+class InmueblesQuorum(models.Model):
+    evento = models.ForeignKey(
+        Evento, on_delete=models.CASCADE, related_name='evento_inmuebles_quorum')
+    inmuebles_registrados = ArrayField(models.CharField(
+        null=True, max_length=4, default=''), blank=True, null=True)
+    registrado = models.BooleanField(default=False)
+
+
 class Quorum(models.Model):
     evento = models.ForeignKey(
         Evento, on_delete=models.CASCADE, related_name='evento_quorum')
@@ -97,5 +105,5 @@ class Quorum(models.Model):
     date_time = models.DateTimeField(
         auto_now_add=True, verbose_name='fecha_hora_registro')
     cantidadPersonas = models.IntegerField(default=0)
-    imuebles_registrados = ArrayField(models.CharField(
-        null=True, max_length=4, default=''), blank=True, null=True, default=list())
+    inmuebles_registrados = models.ForeignKey(
+        InmueblesQuorum, on_delete=models.PROTECT, related_name='quorum_inmuebles_registrados', null=True, default=None)
