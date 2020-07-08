@@ -63,20 +63,24 @@ def sendMail(body, asambleista, password):
                 importante tener en cuenta para el éxito de la reunión, las siguientes recomendaciones técnicas y de procedimiento:<br/><br/>
                 <ul>
                   <li>Tenga en cuenta que las credenciales que le suministraremos en esta comunicación son personales e intransferibles, por lo cual sugerimos 
-                  custodiarlas debidamente y no compartirla.</li>
+                  custodiarlas debidamente y no compartirlas.</li>
                   <li>Si usted otorga un poder, el apoderado podrá ingresar con sus propias credenciales y registrar el poder de acuerdo con el reglamento o 
                   estatutos de su comunidad o institución.</li>
                   <li>Para ingresar de forma segura a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span>y evitar equivocaciones, copie y pegue 
                   desde este correo, el usuario y la contraseña asignadas.</li>
-                  <li>Una vez haya ingresado, encontrará su nombre e información relacionada con su participación en la reunión; igualmente deberá seleccionar su calidad 
-                  de asistente y en caso de ser apoderado de una o varias unidades, deberá cargar el (los) poder (es) con anticipación (mínimo un día antes de la reunión) 
-                  presionando el botón <span style="font-weight:bold">“Registro de Poderes” </span>para así ser validados y asociados a las unidades correspondientes.</li>
+                  <li>Una vez haya ingresado, encontrará su nombre e información relacionada con su participación en la reunión. En caso de ser apoderado de una o varias unidades, 
+                  deberá cargar el (los) poder (es) con anticipación (mínimo 24 horas antes de la reunión) presionando el botón <span style="font-weight:bold">“Registro de Poderes”</span> ,
+                  para así ser validados y asociados a las unidades correspondientes.</li>
                   <li>Adicionalmente, visualizará un vínculo de <span style="font-weight:bold">“Ir a la reunión” </span>y una <span style="font-weight:bold">contraseña </span>
-                  de la reunión que requerirá para participar en la plataforma de interacción.</li>
-                  <li>También tendrá la posibilidad de descargar para su consulta, todos los documentos relacionados con la reunión (convocatoria, reglamento, formato de poderes e informes)</li>
+                  de la reunión que podrá requerir para participar en la plataforma de Zoom.</li>
+                  <li>También tendrá la posibilidad de descargar para su consulta o impresión, todos los documentos relacionados con la reunión (convocatoria, formato de poderes,  
+                   reglamento de asamblea e informes)</li>
+                  <li>Asimismo, en la aplicación encontrará en la parte inferior el botón <span style="font-weight:bold">“Ir a votación”</span> con el cual podrá acceder a todas las 
+                  votaciones durante la reunión.</li>
+                  <li>Finalmente, recomendamos revisar el tutorial y las instrucciones para participar en la reunión y votar.</li>
                 </ul> 
 
-                <p>Para ingresar a la aplicación haga click <a href="%s"> AQUÍ</a> y utilice las siguientes credenciales:</p>       
+                <p>Para ingresar a la aplicación haga click <a href="%s"> AQUÍ</a> y utilice las siguientes credenciales.</p>       
                 <span style="font-weight: bold; text-decoration: underline;">Usuario</span><span style="font-weight: bold;">: </span>%s
                 <br>
                 <span style="font-weight: bold; text-decoration: underline;">Contraseña</span><span style="font-weight: bold;">: </span>%s
@@ -88,6 +92,7 @@ def sendMail(body, asambleista, password):
 
         msg = MIMEText(body_mail, 'html')
         msg['Subject'] = 'Bienvenido a eOpinion. Estas son tus credenciales de acceso'
+        msg['Disposition-Notification-To'] = os.environ.get('EMAIL_ACCOUNT', None)
 
         # Envia correo
         email_server.sendmail(os.environ.get('EMAIL_ACCOUNT', None), str(

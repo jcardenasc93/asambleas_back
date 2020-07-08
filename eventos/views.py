@@ -13,7 +13,7 @@ import os
 from .seriaizers import EventoSerializer, PregAbiertaSerializer, PregDecimalSerializer, PregMultipleSerializer, \
     OpcionMultipleSerializer, DocumentoSerializer, QuorumSerializer
 from .models import Evento, PreguntaAbierta, PreguntaDecimal, PreguntaMultiple, OpcionesMultiple,\
-    Documentos, Quorum
+    Documentos, Quorum, InmueblesQuorum
 from usuarios.models import Asambleista, Apoderado
 
 
@@ -28,15 +28,14 @@ def deleteBucketObjects(files):
     session = boto3.Session(
         aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
     s3 = session.resource('s3')
-    
+
     for f in files:
         try:
             # Delete file in bucket
             obj = s3.Object(AWS_STORAGE_BUCKET_NAME, f)
-            obj.delete()            
+            obj.delete()
         except Exception as e:
             print(e)
-    
 
 
 class ListEventosView(viewsets.ModelViewSet):
@@ -331,7 +330,7 @@ class DocumentosView(viewsets.ModelViewSet):
             archivos.append('media/' + str(documento.documento))
             deleteBucketObjects(archivos)
             self.perform_destroy(documento)
-            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)            
+            return Response({'detail': 'Documento eliminado'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -362,10 +361,16 @@ class QuorumView(viewsets.ModelViewSet):
             request.data['coeficiente_total'] = total_quorum
             request.data['coeficiente_registrado'] = evento.quorum
             request.data['cantidadPersonas'] = evento.cantidadQuorum
+            inmuebles_registrados = InmueblesQuorum.objects.filter(
+                evento=request.data['evento']).filter(registrado=False)[0]
+            request.data['inmuebles_registrados'] = inmuebles_registrados.id
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
+            # Actualiza estado registrado de objeto InmueblesQuorum
+            InmueblesQuorum.objects.filter(evento=request.data['evento']).filter(
+                registrado=False).update(registrado=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
             return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -392,7 +397,6 @@ def solicitaQuorum(request, pk=None):
         evento = get_object_or_404(Evento, id=pk)
         quorumStatus = evento.regitroQuorum
         Evento.objects.filter(id=pk).update(regitroQuorum=not(quorumStatus))
-
         return Response({"detail": "Se actualizó estado del quorum de la asamblea"}, status=status.HTTP_200_OK)
     else:
         return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -401,8 +405,20 @@ def solicitaQuorum(request, pk=None):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def regitroQuorum(request, pk=None):
+    asamb_registrados = []
     usuario = get_object_or_404(Asambleista, id=request.user.id)
     evento = get_object_or_404(Evento, id=pk)
+    # Valida si existe un objeto InmueblesQuorum sin guardar
+    inmuebles_registrados = InmueblesQuorum.objects.filter(
+        evento=evento.id).filter(registrado=False)
+    if len(inmuebles_registrados) > 0:
+        # Existe un objeto previamente creado sin guardar
+        asamb_registrados = inmuebles_registrados[0].inmuebles_registrados
+        inmuebles_registrados = inmuebles_registrados[0]
+    else:
+        # Crea objeto InmueblesQuorum
+        inmuebles_registrados = InmueblesQuorum.objects.create(
+            evento=evento, inmuebles_registrados=asamb_registrados)
     if (usuario.quorumStatus == False) and (evento.regitroQuorum):
         quorum = evento.quorum
         quorum += usuario.coeficienteTotal + usuario.coeficiente
@@ -411,6 +427,11 @@ def regitroQuorum(request, pk=None):
             quorum=quorum, cantidadQuorum=cantidad)
         Asambleista.objects.filter(
             id=request.user.id).update(quorumStatus=True)
+        # Agrega usuario al listado de asambleista presentes
+        asamb_registrados.append(usuario.id)
+        # Actualiza el objeto InmueblesQuorum
+        InmueblesQuorum.objects.filter(pk=inmuebles_registrados.id).update(
+            inmuebles_registrados=asamb_registrados)
         return Response({"detail": "El registro de asistencia del asambleista es correcto"}, status=status.HTTP_200_OK)
     else:
         return Response({"detail": "El usuario no esta habilitado para registrar quorum"}, status=status.HTTP_400_BAD_REQUEST)
@@ -424,6 +445,46 @@ def reinicioQuorum(request, pk=None):
             evento=pk).update(quorumStatus=False)
         Evento.objects.filter(id=pk).update(
             regitroQuorum=False, quorum=0.0, cantidadQuorum=0)
+        # Limpia lista de asambleistas registrados
+        InmueblesQuorum.objects.filter(
+            evento=pk).filter(registrado=False).delete()
         return Response({"detail": "Se ha reiniciado el quorum del evento"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def reporteQuorum(request, pk=None):
+    if request.user.is_staff:
+        quorum = Quorum.objects.get(id=pk)        
+        inmuebles_registrados = get_object_or_404(
+            InmueblesQuorum, id=quorum.inmuebles_registrados.id)
+        inmuebles_presentes = []  # Lista de inmuebles presentes
+        for inmueble in inmuebles_registrados.inmuebles_registrados:
+            # Recorre los usuarios presentes
+            usuario = get_object_or_404(Asambleista, id=inmueble)
+            if usuario.coeficienteTotal > 0.0:
+                # El usuario tiene poderes asociados
+                poderes = Apoderado.objects.filter(representado_por=usuario)
+                for poder in poderes:
+                    inmueble_response = dict()  # Objeto inmueble de respuesta
+                    representado = get_object_or_404(
+                        Asambleista, id=poder.representa_a.id)
+                    inmueble_response['inmueble'] = representado.inmueble
+                    inmueble_response['coeficiente'] = representado.coeficiente
+                    inmueble_response['apoderado'] = True
+                    # Agrega inmueble de representado al listado
+                    inmuebles_presentes.append(inmueble_response)
+
+            inmueble_response = dict()  # Objeto inmueble de respuesta
+            inmueble_response['inmueble'] = usuario.inmueble
+            inmueble_response['coeficiente'] = usuario.coeficiente
+            inmueble_response['apoderado'] = False
+            # Agrega inmueble de representado al listado
+            inmuebles_presentes.append(inmueble_response)
+
+        return Response(inmuebles_presentes, status=status.HTTP_200_OK)
+
     else:
         return Response({"detail": "Acceso denegado. Autentiquese como usuario administrador"}, status=status.HTTP_401_UNAUTHORIZED)
