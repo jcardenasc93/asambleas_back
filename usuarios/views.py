@@ -91,7 +91,7 @@ def sendMail(body, asambleista, password):
         </html>""" % (body, os.environ.get('ASAMBLEA_URL', None), asambleista.username, password)
 
         msg = MIMEText(body_mail, 'html')
-        msg['Subject'] = 'Bienvenido a eOpinion. Estas son tus credenciales de acceso'
+        msg['Subject'] = 'Bienvenido a eOpinion - Estas son sus credenciales de acceso'
         msg['Disposition-Notification-To'] = os.environ.get('EMAIL_ACCOUNT', None)
 
         # Envia correo
