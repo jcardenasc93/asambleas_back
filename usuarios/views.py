@@ -41,7 +41,7 @@ def random_username():
     return username
 
 
-def sendMail(body, asambleista, password):
+def sendMail(body, asambleista, password, correos):
     try:
         email_server = smtplib.SMTP(os.environ.get(
             'EMAIL_SMTP', None), os.environ.get('EMAIL_PORT', None))
@@ -95,8 +95,9 @@ def sendMail(body, asambleista, password):
         msg['Disposition-Notification-To'] = os.environ.get('EMAIL_ACCOUNT', None)
 
         # Envia correo
-        email_server.sendmail(os.environ.get('EMAIL_ACCOUNT', None), str(
-            asambleista.email), msg.as_string().encode("ascii", errors="ignore"))
+        for correo in correos.split('/'):
+            email_server.sendmail(os.environ.get('EMAIL_ACCOUNT', None), str(
+                correo), msg.as_string().encode("ascii", errors="ignore"))
 
         Asambleista.objects.filter(
             id=asambleista.id).update(correo_enviado=True)
@@ -149,9 +150,9 @@ def createUser(request, pk=None):
                         mora = True
                     
                     if inmueble != '':
-
+                        correo_principal = correo.strip().split('/')[0]
                         asambleista = Asambleista(inmueble=inmueble.strip(), nombre_completo=nombres.strip(),
-                                                  documento=documento.strip(), email=correo.strip(), celular=celular.strip(), coeficiente=coeficiente.strip(),
+                                                  documento=documento.strip(), email=correo_principal, celular=celular.strip(), coeficiente=coeficiente.strip(),
                                                   mora=mora, username=username, evento_id=pk)
                         password = random_password()
                         asambleista.set_password(password)
@@ -160,7 +161,7 @@ def createUser(request, pk=None):
                             correosFalla = []
                             asambleista.save()
                             validaEnvio = sendMail(
-                                evento.bodyCorreo, asambleista, password)
+                                evento.bodyCorreo, asambleista, password, correo.strip())
                             if validaEnvio == False:
                                 correosFalla.append(asambleista.email)
 
