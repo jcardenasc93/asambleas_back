@@ -22,8 +22,8 @@ class Asambleista(Usuario):
         max_digits=30, decimal_places=20, default=0.0)
     coeficienteTotal = models.DecimalField(
         max_digits=30, decimal_places=20, default=0.0)
-    documento = models.CharField(max_length=20, blank=True, null=True)
-    celular = models.CharField(blank=True, null=True, max_length=50)
+    documento = models.CharField(max_length=120, blank=True, null=True)
+    celular = models.CharField(blank=True, null=True, max_length=150)
     mora = models.BooleanField(default=False)
     evento = models.ForeignKey(
         Evento, on_delete=models.CASCADE, blank=True, null=True)
