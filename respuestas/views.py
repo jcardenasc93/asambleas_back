@@ -65,7 +65,7 @@ class RespAbiertaView(viewsets.ModelViewSet):
                 asambleista = get_object_or_404(
                     Asambleista, id=self.request.user.id)
                 if asambleista.mora:
-                    return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'Deshabilitado para votar'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     serializer = self.get_serializer(data=request.data)
                     serializer.is_valid(raise_exception=True)
@@ -151,7 +151,7 @@ class RespDecimalView(viewsets.ModelViewSet):
                 else:
                     # No tiene poderes asociados
                     if asambleista.mora:
-                        return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'detail': 'Deshabilitado para votar'}, status=status.HTTP_400_BAD_REQUEST)
                     else:
                         validate = True
 
@@ -244,7 +244,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                     else:
                         # No tiene poderes asociados
                         if asambleista.mora:
-                            return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({'detail': 'Deshabilitado para votar'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 request.data['coeficientes'] = Decimal(1.000)
                 if pregunta.bloquea_mora == False:
@@ -273,7 +273,7 @@ class RespOpMultipleView(viewsets.ModelViewSet):
                     else:
                         # No tiene poderes asociados
                         if asambleista.mora:
-                            return Response({'detail': 'Usuarios que presentan mora no pueden contestar la pregunta'}, status=status.HTTP_400_BAD_REQUEST)
+                            return Response({'detail': 'Deshabilitado para votar'}, status=status.HTTP_400_BAD_REQUEST)
 
             maxResps = pregunta.respuestasPermitidas
             request.data['votos'] = asambleista.cantidadPoderes + 1
