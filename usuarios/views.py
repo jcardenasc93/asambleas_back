@@ -56,28 +56,26 @@ def sendMail(body, asambleista, password, correos=None):
             <body>
                 <span>Reciba un cordial saludo del equipo de eOpinion | opiniones que cuentan.</span>
                 <p>%s</p>                
-                En esta comunicación encontrará las credenciales únicas de acceso a la <span style="font-weight:bold">Aplicación de Votación eOpinion</span>, 
+                En esta comunicación encontrará las credenciales únicas de acceso a <span style="font-weight:bold">eOpinion-APP</span>, 
                 las cuales son generadas automáticamente y de forma encriptada para su seguridad.<br/><br/>
-                El ingreso a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span> lo podrá hacer desde cualquier dispositivo (smart phone, 
+                El ingreso a <span style="font-weight:bold">eOpinion-APP</span> lo podrá hacer desde cualquier dispositivo (smart phone, 
                 tablet, computador o smart TV) con internet mínimo de 10Mb, permitiéndole interactuar y tomar decisiones de forma confiable. En este sentido es 
                 importante tener en cuenta para el éxito de la reunión, las siguientes recomendaciones técnicas y de procedimiento:<br/><br/>
                 <ul>
                   <li>Tenga en cuenta que las credenciales que le suministraremos en esta comunicación son personales e intransferibles, por lo cual sugerimos 
-                  custodiarlas debidamente y no compartirlas.</li>
-                  <li>Si usted otorga un poder, el apoderado podrá ingresar con sus propias credenciales y registrar el poder de acuerdo con el reglamento o 
-                  estatutos de su comunidad o institución.</li>
-                  <li>Para ingresar de forma segura a la <span style="font-weight:bold">Aplicación de Votación eOpinion </span>y evitar equivocaciones, copie y pegue 
-                  desde este correo, el usuario y la contraseña asignadas.</li>
-                  <li>Una vez haya ingresado, encontrará su nombre e información relacionada con su participación en la reunión. En caso de ser apoderado de una o varias unidades, 
-                  deberá cargar el (los) poder (es) con anticipación (mínimo 24 horas antes de la reunión) presionando el botón <span style="font-weight:bold">“Registro de Poderes”</span> ,
-                  para así ser validados y asociados a las unidades correspondientes.</li>
-                  <li>Adicionalmente, visualizará un vínculo de <span style="font-weight:bold">“Ir a la reunión” </span>y una <span style="font-weight:bold">contraseña </span>
-                  de la reunión que podrá requerir para participar en la plataforma de Zoom.</li>
-                  <li>También tendrá la posibilidad de descargar para su consulta o impresión, todos los documentos relacionados con la reunión (convocatoria, formato de poderes,  
-                   reglamento de asamblea e informes)</li>
-                  <li>Asimismo, en la aplicación encontrará en la parte inferior el botón <span style="font-weight:bold">“Ir a votación”</span> con el cual podrá acceder a todas las 
-                  votaciones durante la reunión.</li>
-                  <li>Finalmente, recomendamos revisar el tutorial y las instrucciones para participar en la reunión y votar.</li>
+                  custodiarlas debidamente y no compartirlas. Las credenciales le servirán tanto para la capacitación como para la Asamblea.</li>
+                  <li>Para ingresar de forma segura a <span style="font-weight:bold">eOpinion-APP</span> y evitar equivocaciones, copie y pegue desde este mensaje, el usuario y la contraseña asignadas.</li>
+                  <li>Si usted otorga un poder, deberá enviarlo a <a href='mailto:admin@pbahia.com'>admin@pbahia.com<a> a más tardar el 1 de septiembre 2020 de acuerdo con las indicaciones de la convocatoria, para 
+                  ser validado y asociado a la unidad correspondiente.</li>
+                  <li>También tendrá la posibilidad de descargar para su consulta o impresión, todos los documentos relacionados con la reunión (convocatoria, formato de 
+                  poderes, reglamento de asamblea e informes)</li>
+                  <li>Asimismo, encontrará en la parte superior de la interfaz el botón <span style="font-weight:bold">"Verificar Quórum"</span> con el cual podrá confirmar su 
+                  presencia en la reunión cuando lo indique el moderador. De la misma forma en la parte inferior visualizará el botón <span style="font-weight:bold">"Ir a votación"</span> 
+                  con el cual podrá acceder a las votaciones cuando le sea indicado por el moderador.</li>
+                  <li>Además, visualizará el vínculo <span style="font-weight:bold">"Ir a la reunión"</span> que le llevará directamente a la videoconferencia Zoom.</li>
+                  <li>Tenga en cuenta que, si va a conectarse desde un computador no necesitará descargar la aplicación de Zoom, pero si lo va a hacer desde un Smart phone 
+                  o una tableta, si requerirá descargarla.</li>
+                  <li>Finalmente, recuerde que para las votaciones deberá mantener abierta y visible la pestaña eOpinion-APP en el navegador de internet.</li>
                 </ul> 
 
                 <p>Para ingresar a la aplicación haga click <a href="%s"> AQUÍ</a> y utilice las siguientes credenciales.</p>       
