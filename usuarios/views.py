@@ -76,7 +76,8 @@ def sendMail(body, asambleista, password, correos=None):
                   <li>Tenga en cuenta que, si va a conectarse desde un computador no necesitará descargar la aplicación de Zoom, pero si lo va a hacer desde un Smart phone 
                   o una tableta, si requerirá descargarla.</li>
                   <li>Finalmente, recuerde que para las votaciones deberá mantener abierta y visible la pestaña eOpinion-APP en el navegador de internet.</li>
-                </ul> 
+                </ul>
+                <p>PD: Recuerde revisar y practicar con anticipación el tutorial y las instrucciones para participar en la reunión y votar.</p>
 
                 <p>Para ingresar a la aplicación haga click <a href="%s"> AQUÍ</a> y utilice las siguientes credenciales.</p>       
                 <span style="font-weight: bold; text-decoration: underline;">Usuario</span><span style="font-weight: bold;">: </span>%s
