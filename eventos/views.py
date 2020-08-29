@@ -469,13 +469,17 @@ def reporteQuorum(request, pk=None):
                 poderes = Apoderado.objects.filter(representado_por=usuario)
                 for poder in poderes:
                     inmueble_response = dict()  # Objeto inmueble de respuesta
-                    representado = get_object_or_404(
-                        Asambleista, id=poder.representa_a.id)
-                    inmueble_response['inmueble'] = representado.inmueble
-                    inmueble_response['coeficiente'] = representado.coeficiente
-                    inmueble_response['apoderado'] = True
-                    # Agrega inmueble de representado al listado
-                    inmuebles_presentes.append(inmueble_response)
+                    try:
+                        representado = get_object_or_404(
+                            Asambleista, id=poder.representa_a.id)
+                    except:
+                        representado = None
+                    if representado:
+                        inmueble_response['inmueble'] = representado.inmueble
+                        inmueble_response['coeficiente'] = representado.coeficiente
+                        inmueble_response['apoderado'] = True
+                        # Agrega inmueble de representado al listado
+                        inmuebles_presentes.append(inmueble_response)
 
             inmueble_response = dict()  # Objeto inmueble de respuesta
             inmueble_response['inmueble'] = usuario.inmueble
