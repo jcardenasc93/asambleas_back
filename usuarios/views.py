@@ -70,8 +70,7 @@ def sendMail(body, asambleista, password, correos=None):
                   reglamento o estatutos de su comunidad o institución.</li>
                   <li>Una vez haya ingresado a <span style="font-weight:bold">eOpinion-APP</span> encontrará su nombre e información relacionada con su participación 
                   en la reunión. En caso de ser apoderado de una o varias unidades, deberá cargar el (los) poder (es) con anticipación (mínimo 24 horas antes de la 
-                  reunión) presionando el botón <span style="font-weight:bold">“Registro de Poderes”</span>, para así ser validados y asociados a las unidades correspondientes.
-                  para así ser validados y asociados a las unidades correspondientes.</li>
+                  reunión) presionando el botón <span style="font-weight:bold">“Registro de Poderes”</span>, para así ser validados y asociados a las unidades correspondientes.</li>
                   <li>También tendrá la posibilidad de descargar para su consulta o impresión, todos los documentos relacionados con la reunión (convocatoria, formato de 
                   poderes, reglamento de asamblea e informes).</li>
                   <li>Asimismo, encontrará en la parte superior de la interfaz el botón <span style="font-weight:bold">"Verificar Quórum"</span> con el cual podrá confirmar su 
