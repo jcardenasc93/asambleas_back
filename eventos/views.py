@@ -458,20 +458,18 @@ def reinicioQuorum(request, pk=None):
 def reporteQuorum(request, pk=None):
     if request.user.is_staff:
         quorum = Quorum.objects.get(id=pk)        
-        inmuebles_registrados = get_object_or_404(
-            InmueblesQuorum, id=quorum.inmuebles_registrados.id)
+        inmuebles_registrados = InmueblesQuorum.objects.filter(id=quorum.inmuebles_registrados.id)
         inmuebles_presentes = []  # Lista de inmuebles presentes
         for inmueble in inmuebles_registrados.inmuebles_registrados:
             # Recorre los usuarios presentes
-            usuario = get_object_or_404(Asambleista, id=inmueble)
-            if usuario.coeficienteTotal > 0.0:
+            usuario = Asambleista.objects.get(id=inmueble)
+            if usuario and usuario.coeficienteTotal > 0.0:
                 # El usuario tiene poderes asociados
                 poderes = Apoderado.objects.filter(representado_por=usuario)
                 for poder in poderes:
                     inmueble_response = dict()  # Objeto inmueble de respuesta
                     try:
-                        representado = get_object_or_404(
-                            Asambleista, id=poder.representa_a.id)
+                        representado = Asambleista.objects.get(id=poder.representa_a.id)
                     except:
                         representado = None
                     if representado:
