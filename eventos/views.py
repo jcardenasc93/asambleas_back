@@ -462,7 +462,11 @@ def reporteQuorum(request, pk=None):
         inmuebles_presentes = []  # Lista de inmuebles presentes
         for inmueble in inmuebles_registrados.inmuebles_registrados:
             # Recorre los usuarios presentes
-            usuario = Asambleista.objects.get(id=inmueble)
+            try:
+                usuario = Asambleista.objects.get(id=inmueble)
+            except:
+                return Response({"inmueble": inmueble}, status=status.HTTP_200_OK)
+                
             if usuario and usuario.coeficienteTotal > 0.0:
                 # El usuario tiene poderes asociados
                 poderes = Apoderado.objects.filter(representado_por=usuario)
