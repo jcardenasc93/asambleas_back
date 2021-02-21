@@ -458,7 +458,7 @@ def reinicioQuorum(request, pk=None):
 def reporteQuorum(request, pk=None):
     if request.user.is_staff:
         quorum = Quorum.objects.get(id=pk)        
-        inmuebles_registrados = InmueblesQuorum.objects.filter(id=quorum.inmuebles_registrados.id)
+        inmuebles_registrados = InmueblesQuorum.objects.get(id=quorum.inmuebles_registrados.id)
         inmuebles_presentes = []  # Lista de inmuebles presentes
         for inmueble in inmuebles_registrados.inmuebles_registrados:
             # Recorre los usuarios presentes
