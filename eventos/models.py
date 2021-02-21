@@ -92,7 +92,7 @@ class InmueblesQuorum(models.Model):
     evento = models.ForeignKey(
         Evento, on_delete=models.CASCADE, related_name='evento_inmuebles_quorum')
     inmuebles_registrados = ArrayField(models.CharField(
-        null=True, max_length=4, default=''), blank=True, null=True)
+        null=True, max_length=150, default=''), blank=True, null=True)
     registrado = models.BooleanField(default=False)
 
 
