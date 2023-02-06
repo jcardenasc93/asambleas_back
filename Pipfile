@@ -1,26 +1,25 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[dev-packages]
+name = "pypi"
 
 [packages]
-django = "==3.0"
-psycopg2 = "*"
+django = "*"
 psycopg2-binary = "*"
-django-phonenumber-field = {extras = ["phonenumbers"],version = "*"}
+django-phonenumber-field = "*"
 djoser = "*"
 djangorestframework = "*"
 openpyxl = "*"
-django-heroku = "*"
 gunicorn = "*"
 whitenoise = "*"
 django-cors-headers = "*"
 xlrd = "*"
 boto3 = "*"
 django-storages = "*"
+django-on-heroku = "*"
 pillow = "*"
 
+[dev-packages]
+
 [requires]
-python_version = "3.8"
+python_version = "3.9"
