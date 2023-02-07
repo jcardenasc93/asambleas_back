@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import django_heroku
+import django_on_heroku
 
 
 
@@ -176,4 +176,4 @@ DEFAULT_FILE_STORAGE = 'asambleas.storage_backends.MediaStorage'
 
 CORS_ORIGIN_ALLOW_ALL=True
 
-django_heroku.settings(locals())
+django_on_heroku.settings(locals())
